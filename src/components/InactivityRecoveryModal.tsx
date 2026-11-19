@@ -5,7 +5,6 @@ import {
   Clock,
   HeartHandshake,
   ShieldCheck,
-  Sparkles,
   X,
 } from "lucide-react";
 import { TopicMastery } from "../types";
@@ -72,25 +71,25 @@ export const InactivityRecoveryModal: React.FC<InactivityRecoveryModalProps> = (
     >
       <div className="hc-card w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
         {/* Top Banner */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-[#2563EB] to-[#4F46E5] px-6 py-5 text-white">
+        <div className="flex items-center justify-between bg-slate-900 border-b border-slate-800 px-6 py-5 text-white">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/30">
               <HeartHandshake className="h-5 w-5" />
             </div>
             <div>
-              <h2 id="recovery-modal-title" className="text-base font-extrabold">
-                Inactivity Recovery Path · 5-Day Absence Detected
+              <h2 id="recovery-modal-title" className="text-base font-bold">
+                Welcome Back · 10-Minute Catch-Up Plan
               </h2>
-              <p className="text-xs text-indigo-100">
-                Zero-punishment mode: life happens, your mastery stays intact.
+              <p className="text-xs text-slate-300">
+                Life happens! Your course progress is fully preserved.
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-white/80 hover:bg-white/15 hover:text-white"
-            aria-label="Close recovery modal"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
@@ -107,7 +106,7 @@ export const InactivityRecoveryModal: React.FC<InactivityRecoveryModalProps> = (
                       Your {pythonProgress}% Python Progress is 100% Preserved
                     </div>
                     <p className="text-xs text-emerald-800">
-                      SkillLoop AI never resets streaks to zero or deducts earned mastery after work travel or busy weeks.
+                      SkillLoop never resets your progress or penalizes you after busy weeks or work travel.
                     </p>
                   </div>
                 </div>
@@ -184,12 +183,12 @@ export const InactivityRecoveryModal: React.FC<InactivityRecoveryModalProps> = (
             <div className="space-y-5">
               <div className="rounded-xl border border-indigo-200 bg-indigo-50/70 p-4">
                 <div className="flex items-center gap-2 text-xs font-bold text-indigo-900">
-                  <Sparkles className="h-4 w-4 text-indigo-600" />
-                  <span>Retention Gaps Identified · Revised 10-Min Catch-Up Plan</span>
+                  <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+                  <span>Key Topics Identified · Tailored 10-Min Catch-Up</span>
                 </div>
                 <p className="mt-1 text-xs text-indigo-800">
-                  You kept strong recall on Variables! Focus areas for tonight:{" "}
-                  <strong>{finalGaps.join(" & ")}</strong>. Your {pythonProgress}% progress remains untouched.
+                  You retained strong recall on Variables! Priority practice for today:{" "}
+                  <strong>{finalGaps.join(" & ")}</strong>. Your {pythonProgress}% course progress remains intact.
                 </p>
               </div>
 

@@ -121,19 +121,19 @@ export function evaluateRouteAccess(
   const allowedPortals = getAllowedRolesForUser(userRole);
   const fallbackPath = getDefaultPathForRole(userRole);
 
-  // 2. Logged-in user visiting / or /login -> redirect to role home
+  // 2. Visiting / or /login -> show Sign In page
   if (path === "/" || path === "/login") {
     return {
-      isAuthenticatedRoute: true,
+      isAuthenticatedRoute: false,
       allowed: true,
       isNotFound: false,
-      redirectPath: fallbackPath,
+      redirectPath: path === "/login" ? null : "/login",
       deniedReason: null,
       resolved: {
-        portal: userRole,
+        portal: userRole || "learner",
         learnerTab: "dashboard",
         educatorSubTab: "generator",
-        path: fallbackPath,
+        path: "/login",
       },
     };
   }
@@ -144,6 +144,7 @@ export function evaluateRouteAccess(
       return {
         isAuthenticatedRoute: true,
         allowed: false,
+        isNotFound: false,
         redirectPath: fallbackPath,
         deniedReason:
           "Access denied: Admin routes are restricted to Admin accounts.",
@@ -176,6 +177,7 @@ export function evaluateRouteAccess(
       return {
         isAuthenticatedRoute: true,
         allowed: false,
+        isNotFound: false,
         redirectPath: fallbackPath,
         deniedReason:
           "Access denied: Educator routes are restricted to Educator and Admin accounts.",
@@ -210,6 +212,7 @@ export function evaluateRouteAccess(
       return {
         isAuthenticatedRoute: true,
         allowed: false,
+        isNotFound: false,
         redirectPath: fallbackPath,
         deniedReason:
           "Access denied: Learner routes are restricted to Learner and Admin accounts.",
@@ -240,6 +243,7 @@ export function evaluateRouteAccess(
   return {
     isAuthenticatedRoute: true,
     allowed: false,
+    isNotFound: false,
     redirectPath: fallbackPath,
     deniedReason: null,
     resolved: {

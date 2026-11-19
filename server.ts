@@ -148,7 +148,7 @@ async function startServer() {
   app.get("/api/health", (_req, res) => {
     const hasKey = Boolean(
       process.env.GEMINI_API_KEY &&
-        process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY"
+      process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY"
     );
     res.json({
       ok: true,
@@ -217,7 +217,10 @@ async function startServer() {
       if (existingUser) {
         return res
           .status(409)
-          .json({ error: "An account with this email already exists." });
+          .json({
+            error: "An account with this email already exists. Please sign in instead.",
+            alreadyExists: true,
+          });
       }
 
       const existingPending = await purgeAndCheckPendingSignup(cleanEmail);
@@ -310,9 +313,8 @@ async function startServer() {
         return res.status(401).json({
           error:
             remaining > 0
-              ? `Incorrect verification code. ${remaining} attempt${
-                  remaining === 1 ? "" : "s"
-                } left.`
+              ? `Incorrect verification code. ${remaining} attempt${remaining === 1 ? "" : "s"
+              } left.`
               : "Too many incorrect attempts. Please request a new code.",
         });
       }
@@ -322,7 +324,10 @@ async function startServer() {
         await deletePendingSignupByEmail(cleanEmail);
         return res
           .status(409)
-          .json({ error: "An account with this email already exists." });
+          .json({
+            error: "An account with this email already exists. Please sign in instead.",
+            alreadyExists: true,
+          });
       }
 
       const validRole: Role =
@@ -434,20 +439,20 @@ async function startServer() {
         const updated = await updateUserPreferences(req.auth!.sub, {
           preferredLanguage:
             preferred_language === "en" ||
-            preferred_language === "ur" ||
-            preferred_language === "roman_ur"
+              preferred_language === "ur" ||
+              preferred_language === "roman_ur"
               ? preferred_language
               : undefined,
           accessibilityPrefs:
             accessibility_prefs && typeof accessibility_prefs === "object"
               ? {
-                  fontSize:
-                    accessibility_prefs.fontSize === "large"
-                      ? "large"
-                      : "normal",
-                  highContrast: Boolean(accessibility_prefs.highContrast),
-                  ttsEnabled: Boolean(accessibility_prefs.ttsEnabled),
-                }
+                fontSize:
+                  accessibility_prefs.fontSize === "large"
+                    ? "large"
+                    : "normal",
+                highContrast: Boolean(accessibility_prefs.highContrast),
+                ttsEnabled: Boolean(accessibility_prefs.ttsEnabled),
+              }
               : undefined,
           lastActiveAt:
             typeof last_active_at === "string"
@@ -570,34 +575,34 @@ async function startServer() {
     requireAuth,
     requireRoles("learner", "admin"),
     async (req: AuthenticatedRequest, res) => {
-    const ai = getAiClient();
-    if (!ai) {
-      return res.status(503).json({
-        error: "Gemini API key is not configured on the server.",
-        offlineRecommended: true,
-      });
-    }
+      const ai = getAiClient();
+      if (!ai) {
+        return res.status(503).json({
+          error: "Gemini API key is not configured on the server.",
+          offlineRecommended: true,
+        });
+      }
 
-    const {
-      question,
-      codeSnippet,
-      userAnswer,
-      correctAnswer,
-      topic,
-      language = "en",
-    } = req.body ?? {};
+      const {
+        question,
+        codeSnippet,
+        userAnswer,
+        correctAnswer,
+        topic,
+        language = "en",
+      } = req.body ?? {};
 
-    if (!question || userAnswer === undefined || !correctAnswer) {
-      return res.status(400).json({ error: "Missing required fields." });
-    }
+      if (!question || userAnswer === undefined || !correctAnswer) {
+        return res.status(400).json({ error: "Missing required fields." });
+      }
 
-    try {
-      const langPrompt = getLanguageInstruction(language);
-      const isCorrect =
-        String(userAnswer).trim().toLowerCase() ===
-        String(correctAnswer).trim().toLowerCase();
+      try {
+        const langPrompt = getLanguageInstruction(language);
+        const isCorrect =
+          String(userAnswer).trim().toLowerCase() ===
+          String(correctAnswer).trim().toLowerCase();
 
-      const prompt = `You are SkillLoop AI, an adaptive tutor for working adults.
+        const prompt = `You are SkillLoop AI, an adaptive tutor for working adults.
 Topic: ${topic || "Programming"}
 Question: ${question}
 Code snippet: ${codeSnippet || "N/A"}
@@ -615,50 +620,50 @@ Provide:
 5. followUpOptions: Array of exactly 3 short answer choices.
 6. followUpAnswer: Exact string matching one of followUpOptions.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-4-hydrogen",
-        contents: prompt,
-        config: {
-          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              whyOutcome: { type: Type.STRING },
-              coreConcept: { type: Type.STRING },
-              stepByStep: { type: Type.STRING },
-              followUpQuestion: { type: Type.STRING },
-              followUpOptions: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
+        const response = await ai.models.generateContent({
+          model: "gemini-4-hydrogen",
+          contents: prompt,
+          config: {
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                whyOutcome: { type: Type.STRING },
+                coreConcept: { type: Type.STRING },
+                stepByStep: { type: Type.STRING },
+                followUpQuestion: { type: Type.STRING },
+                followUpOptions: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                followUpAnswer: { type: Type.STRING },
               },
-              followUpAnswer: { type: Type.STRING },
+              required: [
+                "whyOutcome",
+                "coreConcept",
+                "stepByStep",
+                "followUpQuestion",
+                "followUpOptions",
+                "followUpAnswer",
+              ],
             },
-            required: [
-              "whyOutcome",
-              "coreConcept",
-              "stepByStep",
-              "followUpQuestion",
-              "followUpOptions",
-              "followUpAnswer",
-            ],
           },
-        },
-      });
+        });
 
-      const parsed = parseGeminiJson<Record<string, unknown>>(
-        response.text,
-        {}
-      );
-      return res.json({ source: "gemini", feedback: parsed });
-    } catch (error) {
-      console.error("Gemini feedback error:", error);
-      return res.status(502).json({
-        error: "Unable to reach Gemini AI service.",
-        offlineRecommended: true,
-      });
-    }
-  });
+        const parsed = parseGeminiJson<Record<string, unknown>>(
+          response.text,
+          {}
+        );
+        return res.json({ source: "gemini", feedback: parsed });
+      } catch (error) {
+        console.error("Gemini feedback error:", error);
+        return res.status(502).json({
+          error: "Unable to reach Gemini AI service.",
+          offlineRecommended: true,
+        });
+      }
+    });
 
   // 2. AI Tutor Chat Endpoint (Authenticated Users)
   app.post(
@@ -689,11 +694,11 @@ Provide:
         const langPrompt = getLanguageInstruction(language);
         const masterySummary = Array.isArray(topicMastery)
           ? topicMastery
-              .map(
-                (t: { name: string; mastery: number }) =>
-                  `${t.name}: ${t.mastery}%`
-              )
-              .join(", ")
+            .map(
+              (t: { name: string; mastery: number }) =>
+                `${t.name}: ${t.mastery}%`
+            )
+            .join(", ")
           : "";
 
         const response = await ai.models.generateContent({
@@ -729,89 +734,89 @@ Use Socratic hints first—guide the learner to notice the key rule with a brief
     requireAuth,
     requireRoles("educator", "admin"),
     async (req: AuthenticatedRequest, res) => {
-    const ai = getAiClient();
-    if (!ai) {
-      return res.status(503).json({
-        error: "Gemini API key is not configured on the server.",
-        offlineRecommended: true,
-      });
-    }
+      const ai = getAiClient();
+      if (!ai) {
+        return res.status(503).json({
+          error: "Gemini API key is not configured on the server.",
+          offlineRecommended: true,
+        });
+      }
 
-    const {
-      notes,
-      courseTitle = "Python Programming",
-      topicName = "Loops",
-    } = req.body ?? {};
+      const {
+        notes,
+        courseTitle = "Python Programming",
+        topicName = "Loops",
+      } = req.body ?? {};
 
-    if (!notes || String(notes).trim().length < 10) {
-      return res.status(400).json({
-        error: "Please provide course notes (at least 10 characters).",
-      });
-    }
+      if (!notes || String(notes).trim().length < 10) {
+        return res.status(400).json({
+          error: "Please provide course notes (at least 10 characters).",
+        });
+      }
 
-    try {
-      const prompt = `Extract key concepts from these educator notes and generate 3 scaffolded assessment items (one Easy, one Medium, one Hard) for adult learners.
+      try {
+        const prompt = `Extract key concepts from these educator notes and generate 3 scaffolded assessment items (one Easy, one Medium, one Hard) for adult learners.
 Course: ${courseTitle}
 Topic: ${topicName}
 Notes:
 ${notes}`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-4-hydrogen",
-        contents: prompt,
-        config: {
-          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              extractedConcepts: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-              drafts: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    question: { type: Type.STRING },
-                    codeSnippet: { type: Type.STRING },
-                    options: {
-                      type: Type.ARRAY,
-                      items: { type: Type.STRING },
+        const response = await ai.models.generateContent({
+          model: "gemini-4-hydrogen",
+          contents: prompt,
+          config: {
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                extractedConcepts: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                drafts: {
+                  type: Type.ARRAY,
+                  items: {
+                    type: Type.OBJECT,
+                    properties: {
+                      question: { type: Type.STRING },
+                      codeSnippet: { type: Type.STRING },
+                      options: {
+                        type: Type.ARRAY,
+                        items: { type: Type.STRING },
+                      },
+                      correctAnswer: { type: Type.STRING },
+                      difficulty: { type: Type.STRING },
+                      explanation: { type: Type.STRING },
                     },
-                    correctAnswer: { type: Type.STRING },
-                    difficulty: { type: Type.STRING },
-                    explanation: { type: Type.STRING },
+                    required: [
+                      "question",
+                      "options",
+                      "correctAnswer",
+                      "difficulty",
+                      "explanation",
+                    ],
                   },
-                  required: [
-                    "question",
-                    "options",
-                    "correctAnswer",
-                    "difficulty",
-                    "explanation",
-                  ],
                 },
               },
+              required: ["extractedConcepts", "drafts"],
             },
-            required: ["extractedConcepts", "drafts"],
           },
-        },
-      });
+        });
 
-      const parsed = parseGeminiJson<Record<string, unknown>>(
-        response.text,
-        {}
-      );
-      return res.json({ source: "gemini", ...parsed });
-    } catch (error) {
-      console.error("Gemini generate-questions error:", error);
-      return res.status(502).json({
-        error: "Unable to reach Gemini AI generator.",
-        offlineRecommended: true,
-      });
-    }
-  });
+        const parsed = parseGeminiJson<Record<string, unknown>>(
+          response.text,
+          {}
+        );
+        return res.json({ source: "gemini", ...parsed });
+      } catch (error) {
+        console.error("Gemini generate-questions error:", error);
+        return res.status(502).json({
+          error: "Unable to reach Gemini AI generator.",
+          offlineRecommended: true,
+        });
+      }
+    });
 
   // Unmatched /api routes should always return JSON 404 rather than falling through to SPA HTML
   app.use("/api", (_req, res) => {

@@ -7,57 +7,57 @@ export interface RouteSeoMeta {
   indexable: boolean;
 }
 
-export const SITE_NAME = "SkillLoop AI";
+export const SITE_NAME = "SkillLoop";
 
 export const ROUTE_SEO_MAP: Record<string, RouteSeoMeta> = {
   "/": {
     path: "/",
-    title: "SkillLoop AI – Adaptive Learning & Mastery Platform",
+    title: "SkillLoop – Modern Interactive Learning Platform",
     description:
-      "Master programming in 10–30 minute daily sessions with adaptive study plans, zero-penalty catch-up, and conceptual AI feedback.",
+      "Master programming with focused 10–30 minute daily sessions, personalized practice, and clear step-by-step explanations.",
     priority: "1.0",
     changefreq: "weekly",
     indexable: true,
   },
   "/login": {
     path: "/login",
-    title: "Sign In – SkillLoop AI Learning Platform",
+    title: "Sign In – SkillLoop",
     description:
-      "Sign in or create a verified SkillLoop AI account to access focused 10–30 minute study plans, catch-up diagnostics, and AI feedback.",
+      "Sign in or create a SkillLoop account to access daily study plans, focused practice, and personalized tracking.",
     priority: "0.9",
     changefreq: "monthly",
     indexable: true,
   },
   "/dashboard": {
     path: "/dashboard",
-    title: "Learner Dashboard – SkillLoop AI",
+    title: "Learner Dashboard – SkillLoop",
     description:
-      "Track topic mastery, resume micro-lessons, and follow flexible 10–30 minute daily study plans built for working adult learners.",
+      "Track topic mastery, resume micro-lessons, and follow flexible daily study plans built for working adult learners.",
     priority: "0.9",
     changefreq: "daily",
     indexable: true,
   },
   "/courses": {
     path: "/courses",
-    title: "My Courses & Micro-Lessons – SkillLoop AI",
+    title: "My Courses & Micro-Lessons – SkillLoop",
     description:
-      "Explore bite-sized programming micro-lessons with interactive code examples, readable captions, and audio playback in SkillLoop AI.",
+      "Explore bite-sized programming micro-lessons with interactive code examples, captions, and audio playback in SkillLoop.",
     priority: "0.9",
     changefreq: "weekly",
     indexable: true,
   },
   "/practice": {
     path: "/practice",
-    title: "Smart Practice & AI Feedback – SkillLoop AI",
+    title: "Targeted Practice & Explanations – SkillLoop",
     description:
-      "Practice coding questions with adaptive difficulty, auto-saved quiz progress, and step-by-step conceptual AI feedback on every answer.",
+      "Practice coding questions with targeted difficulty, auto-saved quiz progress, and step-by-step conceptual explanations.",
     priority: "0.9",
     changefreq: "daily",
     indexable: true,
   },
   "/planner": {
     path: "/planner",
-    title: "Study Planner (10–30 Min) – SkillLoop AI",
+    title: "Daily Study Planner – SkillLoop",
     description:
       "Build a realistic 10, 15, 20, or 30-minute study session around your schedule and stay on track without streak penalties.",
     priority: "0.8",

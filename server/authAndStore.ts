@@ -256,19 +256,30 @@ export async function sendVerificationEmail(params: {
           Number.isInteger(rawPort) && rawPort >= 1 && rawPort <= 65535
             ? rawPort
             : 465;
-        const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port,
-          secure: port === 465,
-          connectionTimeout: 3500,
-          greetingTimeout: 3500,
-          socketTimeout: 4500,
-          dnsTimeout: 2500,
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
-        });
+        const isGmail =
+          smtpHost.toLowerCase() === "smtp.gmail.com" ||
+          smtpUser.toLowerCase().endsWith("@gmail.com");
+
+        const transporter = isGmail
+          ? nodemailer.createTransport({
+              service: "gmail",
+              auth: {
+                user: smtpUser,
+                pass: smtpPass,
+              },
+            })
+          : nodemailer.createTransport({
+              host: smtpHost,
+              port,
+              secure: port === 465,
+              connectionTimeout: 10000,
+              greetingTimeout: 10000,
+              socketTimeout: 15000,
+              auth: {
+                user: smtpUser,
+                pass: smtpPass,
+              },
+            });
         const fromAddress =
           getConfiguredSecret(process.env.SMTP_FROM) ||
           getConfiguredSecret(process.env.EMAIL_FROM) ||
@@ -419,7 +430,15 @@ export async function sendVerificationEmail(params: {
     };
   }
 
-  // 5. No email provider secrets configured -> return explicit configuration error (no dummy preview)
+  // 5. No email provider secrets configured -> simulated code in development!
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`\n==============================================\n🔑 [DEV MODE] Verification Code for ${to}: ${code}\n==============================================\n`);
+    return {
+      sent: true,
+      provider: "Local Dev Verification (Simulated)",
+    };
+  }
+
   return {
     sent: false,
     error:

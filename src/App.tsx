@@ -51,9 +51,16 @@ import {
 } from "./components/SecondaryViews";
 
 export default function App() {
-  const initialSession = AuthRepo.getSession();
+  const currentPath =
+    typeof window !== "undefined"
+      ? normalizePathname(window.location.pathname)
+      : "/";
+  const isAuthEntry = currentPath === "/" || currentPath === "/login";
+
+  // When opening the web app (root "/" or "/login"), always start on the Sign In page
+  const initialSession = isAuthEntry ? null : AuthRepo.getSession();
   const initialEval = evaluateRouteAccess(
-    typeof window !== "undefined" ? window.location.pathname : "/",
+    isAuthEntry ? "/login" : currentPath,
     initialSession?.role ?? null
   );
 
@@ -179,8 +186,16 @@ export default function App() {
     }
   }, [currentUser, role, activeTab, educatorSubTab]);
 
-  // Verify stored Bearer session token with backend on mount
+  // Verify stored Bearer session token with backend on mount ONLY for deep protected routes
   useEffect(() => {
+    const rawPath =
+      typeof window !== "undefined"
+        ? normalizePathname(window.location.pathname)
+        : "/";
+    if (rawPath === "/" || rawPath === "/login") {
+      // Opening the web app or login route: stay on the Sign In page
+      return;
+    }
     void AuthRepo.verifySessionOnServer().then((verifiedUser) => {
       if (!verifiedUser) {
         setCurrentUser(null);

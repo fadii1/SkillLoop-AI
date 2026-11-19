@@ -26,8 +26,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [signupStep, setSignupStep] = useState<"form" | "verify">("form");
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("fahad@skillloop.ai");
-  const [password, setPassword] = useState("demo123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [signupRole, setSignupRole] = useState<UserRole>("learner");
 
@@ -135,10 +135,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
 
       setSignupStep("verify");
       setOtpDigits(["", "", "", "", "", ""]);
-      setResendCooldown(20);
       setInfoMsg(
         `A 6-digit verification code has been sent to ${res.email}. Please check your Inbox or Spam folder.`
       );
+      setResendCooldown(20);
       setTimeout(() => otpInputRefs.current[0]?.focus(), 80);
     } finally {
       setSubmitting(false);
@@ -222,32 +222,57 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F4F7FE] lg:flex-row">
+    <div className="flex min-h-screen flex-col bg-slate-50 lg:flex-row">
       {/* Clean Brand Left Panel */}
-      <div className="flex flex-col justify-center bg-[#0F172A] px-7 py-10 text-white sm:px-12 lg:w-[42%] lg:px-14">
-        <div className="max-w-md space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
-              <GraduationCap className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-extrabold tracking-tight text-white">
-              SkillLoop AI
-            </span>
+      <div className="flex flex-col justify-between border-b border-slate-200/80 bg-slate-900 px-8 py-10 text-white sm:px-12 lg:w-[44%] lg:border-b-0 lg:border-r lg:px-14 lg:py-16">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
+            <GraduationCap className="h-5 w-5" />
+          </div>
+          <span className="text-xl font-bold tracking-tight text-white">
+            SkillLoop
+          </span>
+        </div>
+
+        <div className="my-auto max-w-md py-12 space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/80 px-3 py-1 text-xs font-medium text-indigo-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Interactive Coding &amp; Practice
           </div>
 
-          <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl text-balance">
-            Adaptive learning built for busy schedules.
+          <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl text-balance">
+            Master programming concepts at your own pace.
           </h1>
+
           <p className="text-sm leading-relaxed text-slate-300">
-            Focused 10–30 minute study plans, zero-penalty catch-up, and conceptual AI feedback.
+            Short, focused practice sessions with instant step-by-step explanations, tailored to your daily schedule.
           </p>
+
+          <div className="space-y-3 pt-2">
+            {[
+              "Bite-sized 10–30 minute daily sessions",
+              "Instant step-by-step concept explanations",
+              "Pick up right where you left off",
+            ].map((feature, i) => (
+              <div key={i} className="flex items-center gap-3 text-xs text-slate-300">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400">
+                  <UserCheck className="h-3 w-3" />
+                </div>
+                <span>{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-xs text-slate-500">
+          © {new Date().getFullYear()} SkillLoop. All rights reserved.
         </div>
       </div>
 
       {/* Right Clean Auth Form Card */}
-      <div className="flex flex-1 items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
-        <div className="w-full max-w-[410px]">
-          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs sm:p-8 space-y-5">
+      <div className="flex flex-1 items-center justify-center px-4 py-12 sm:px-8 lg:px-12">
+        <div className="w-full max-w-[420px]">
+          <div className="rounded-2xl border border-slate-200/90 bg-white p-7 shadow-sm sm:p-9 space-y-6">
             {signupStep === "verify" && mode === "signup" ? (
               <form onSubmit={handleVerifyCode} className="space-y-5">
                 <div className="flex items-center justify-between">
@@ -258,18 +283,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                       setError(null);
                       setInfoMsg(null);
                     }}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     <span>Back</span>
                   </button>
-                  <span className="text-[11px] font-semibold text-indigo-600">
+                  <span className="text-xs font-semibold text-indigo-600">
                     Step 2 of 2
                   </span>
                 </div>
 
                 <div>
-                  <h2 className="text-xl font-extrabold tracking-tight text-slate-900">
+                  <h2 className="text-xl font-bold tracking-tight text-slate-900">
                     Check your email
                   </h2>
                   <p className="mt-1 text-xs leading-relaxed text-slate-500">
@@ -282,13 +307,30 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                 </div>
 
                 {error && (
-                  <div className="rounded-xl bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-800">
-                    {error}
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-800">
+                    <div className="flex items-center justify-between gap-2">
+                      <span>{error}</span>
+                    </div>
+                    {error.toLowerCase().includes("already exists") && (
+                      <div className="mt-2.5 pt-2 border-t border-rose-200/80 flex items-center justify-between gap-2">
+                        <span className="font-medium text-rose-700">Account already created?</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("login");
+                            setError(null);
+                          }}
+                          className="font-bold text-indigo-700 underline hover:text-indigo-900 cursor-pointer shrink-0"
+                        >
+                          Sign In Instead →
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {infoMsg && !error && (
-                  <div className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-900">
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200/60 px-3.5 py-2.5 text-xs font-medium text-emerald-900">
                     {infoMsg}
                   </div>
                 )}
@@ -312,7 +354,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                         onKeyDown={(e) => handleOtpKeyDown(idx, e)}
                         onPaste={handleOtpPaste}
                         aria-label={`Verification digit ${idx + 1}`}
-                        className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 text-center font-mono text-lg font-extrabold text-slate-900 transition-colors focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                        className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 text-center font-mono text-lg font-bold text-slate-900 transition-colors focus:border-indigo-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
                       />
                     ))}
                   </div>
@@ -321,7 +363,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                 <button
                   type="submit"
                   disabled={submitting || otpDigits.join("").length !== 6}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -337,12 +379,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                 </button>
 
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Didn&apos;t get the code?</span>
+                  <span className="text-slate-500">Didn&apos;t receive code?</span>
                   <button
                     type="button"
                     disabled={submitting || resendCooldown > 0}
                     onClick={handleRequestCode}
-                    className="inline-flex items-center gap-1.5 font-bold text-indigo-600 hover:text-indigo-700 disabled:text-slate-400"
+                    className="inline-flex items-center gap-1.5 font-semibold text-indigo-600 hover:text-indigo-700 disabled:text-slate-400"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
                     <span>
@@ -356,18 +398,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
             ) : (
               <>
                 <div>
-                  <h2 className="text-xl font-extrabold tracking-tight text-slate-900">
-                    {mode === "login" ? "Sign in" : "Create account"}
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                    {mode === "login" ? "Welcome back" : "Create an account"}
                   </h2>
                   <p className="mt-1 text-xs text-slate-500">
                     {mode === "login"
-                      ? "Continue to your SkillLoop workspace."
-                      : "We will email a 6-digit verification code."}
+                      ? "Sign in to access your courses and practice sessions."
+                      : "We'll send a 6-digit verification code to your email."}
                   </p>
                 </div>
 
                 <div
-                  className="grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100/80 p-1"
+                  className="grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100/90 p-1"
                   role="tablist"
                 >
                   <button
@@ -380,9 +422,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                       setError(null);
                       setInfoMsg(null);
                     }}
-                    className={`rounded-lg py-2 text-xs font-bold transition-all ${
+                    className={`rounded-lg py-2 text-xs font-semibold transition-all ${
                       mode === "login"
-                        ? "bg-white text-indigo-700 shadow-xs"
+                        ? "bg-white text-indigo-600 shadow-sm"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
@@ -400,9 +442,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                       setError(null);
                       setInfoMsg(null);
                     }}
-                    className={`rounded-lg py-2 text-xs font-bold transition-all ${
+                    className={`rounded-lg py-2 text-xs font-semibold transition-all ${
                       mode === "signup"
-                        ? "bg-white text-indigo-700 shadow-xs"
+                        ? "bg-white text-indigo-600 shadow-sm"
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
@@ -411,12 +453,29 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                 </div>
 
                 {error && (
-                  <div className="rounded-xl bg-rose-50 px-3.5 py-2.5 text-xs font-semibold text-rose-800">
-                    {error}
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-800">
+                    <div className="flex items-center justify-between gap-2">
+                      <span>{error}</span>
+                    </div>
+                    {error.toLowerCase().includes("already exists") && (
+                      <div className="mt-2.5 pt-2 border-t border-rose-200/80 flex items-center justify-between gap-2">
+                        <span className="font-medium text-rose-700">Account already created?</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("login");
+                            setError(null);
+                          }}
+                          className="font-bold text-indigo-700 underline hover:text-indigo-900 cursor-pointer shrink-0"
+                        >
+                          Sign In Instead →
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-3.5">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   {mode === "signup" && (
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-slate-700">
@@ -429,7 +488,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="e.g. Ayesha Tariq"
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 ps-9 pe-3 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2.5 ps-9 pe-3 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
                         />
                       </div>
                     </div>
@@ -437,7 +496,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
 
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                      Email
+                      Email Address
                     </label>
                     <div className="relative">
                       <Mail className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -447,15 +506,17 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 ps-9 pe-3 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2.5 ps-9 pe-3 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                      Password
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-semibold text-slate-700">
+                        Password
+                      </label>
+                    </div>
                     <div className="relative">
                       <Lock className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                       <input
@@ -464,8 +525,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                         minLength={6}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Min 6 characters"
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 ps-9 pe-10 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none"
+                        placeholder="At least 6 characters"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-2.5 ps-9 pe-10 text-sm text-slate-900 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-100"
                       />
                       <button
                         type="button"
@@ -473,7 +534,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                         aria-label={
                           showPassword ? "Hide password" : "Show password"
                         }
-                        className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -487,7 +548,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                   {mode === "signup" && (
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-slate-700">
-                        Role
+                        Select Role
                       </label>
                       <div className="grid grid-cols-3 gap-2">
                         {(
@@ -503,7 +564,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                             onClick={() => setSignupRole(id)}
                             className={`flex items-center justify-center gap-1.5 rounded-xl border py-2 text-xs font-semibold transition-colors ${
                               signupRole === id
-                                ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                                ? "border-indigo-600 bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600"
                                 : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                             }`}
                           >
@@ -518,7 +579,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60 shadow-xs"
                   >
                     {submitting ? (
                       <>
@@ -542,9 +603,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                   </button>
                 </form>
 
-                <div className="relative flex items-center py-0.5">
+                <div className="relative flex items-center py-1">
                   <div className="flex-grow border-t border-slate-200" />
-                  <span className="mx-3 shrink-0 text-[11px] font-medium text-slate-400">
+                  <span className="mx-3 shrink-0 text-xs text-slate-400">
                     or
                   </span>
                   <div className="flex-grow border-t border-slate-200" />
@@ -554,7 +615,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                   type="button"
                   disabled={submitting}
                   onClick={handleGoogleSignIn}
-                  className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-60"
                 >
                   <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -578,14 +639,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                 </button>
 
                 {mode === "login" && (
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-3.5 text-[11px] text-slate-400">
-                    <span>Demo:</span>
-                    <div className="flex items-center gap-3 font-semibold text-indigo-600">
+                  <div className="flex flex-wrap items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500 gap-2">
+                    <span className="font-medium text-slate-500">Quick Demo:</span>
+                    <div className="flex items-center gap-1.5">
                       <button
                         type="button"
                         disabled={submitting}
                         onClick={() => handleDemoLogin("learner")}
-                        className="hover:underline disabled:opacity-50"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors"
                       >
                         Learner
                       </button>
@@ -593,7 +654,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                         type="button"
                         disabled={submitting}
                         onClick={() => handleDemoLogin("educator")}
-                        className="hover:underline disabled:opacity-50"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors"
                       >
                         Educator
                       </button>
@@ -601,7 +662,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                         type="button"
                         disabled={submitting}
                         onClick={() => handleDemoLogin("admin")}
-                        className="hover:underline disabled:opacity-50"
+                        className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 font-semibold text-slate-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-colors"
                       >
                         Admin
                       </button>

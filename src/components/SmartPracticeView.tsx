@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
   ArrowRight,
+  BookOpen,
   Brain,
   CheckCircle2,
   Lightbulb,
   Loader2,
   Save,
-  Sparkles,
   Volume2,
 } from "lucide-react";
 import {
@@ -453,11 +453,11 @@ export const SmartPracticeView: React.FC<SmartPracticeViewProps> = ({
               {loadingFeedback ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Analyzing...</span>
+                  <span>Checking...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4" />
+                  <CheckCircle2 className="h-4 w-4" />
                   <span>{t.submitAnswer}</span>
                 </>
               )}
@@ -466,7 +466,7 @@ export const SmartPracticeView: React.FC<SmartPracticeViewProps> = ({
             <button
               type="button"
               onClick={handleNext}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <span>{t.nextQuestion}</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -477,12 +477,14 @@ export const SmartPracticeView: React.FC<SmartPracticeViewProps> = ({
         <div className="hc-card min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6 lg:col-span-6 flex flex-col justify-between">
           {!activeFeedback ? (
             <div className="flex flex-1 flex-col items-center justify-center py-10 text-center space-y-2.5">
-              <Sparkles className="h-6 w-6 text-indigo-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+                <BookOpen className="h-5 w-5" />
+              </div>
               <h3 className="text-sm font-bold text-slate-900">
                 {t.aiFeedbackTitle}
               </h3>
               <p className="max-w-xs text-xs leading-relaxed text-slate-500">
-                Submit your answer to view conceptual reasoning and a quick follow-up check.
+                Submit your answer to view the detailed step-by-step breakdown and key concept summary.
               </p>
             </div>
           ) : (

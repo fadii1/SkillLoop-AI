@@ -191,7 +191,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             {roleOptions.map(({ id, label, icon: Icon }) => {
               const active = role === id;
-              return (
               const portalHref =
                 id === "admin"
                   ? "/admin"

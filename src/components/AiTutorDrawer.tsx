@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import {
-  Bot,
+  GraduationCap,
   Loader2,
+  MessageSquare,
   Send,
-  Sparkles,
   Volume2,
   X,
 } from "lucide-react";
@@ -128,27 +128,27 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
       className="fixed inset-0 z-50 flex justify-end bg-slate-950/45 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
-      aria-label="SkillLoop AI Tutor"
+      aria-label="SkillLoop Study Assistant"
     >
       <div className="hc-card flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
         {/* Drawer Header */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-[#2563EB] to-[#4F46E5] px-5 py-4 text-white">
+        <div className="flex items-center justify-between bg-slate-900 border-b border-slate-800 px-5 py-4 text-white">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20">
-              <Bot className="h-5 w-5" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600/30 text-indigo-400 border border-indigo-500/30">
+              <GraduationCap className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-sm font-extrabold">SkillLoop AI Tutor</div>
-              <div className="text-[11px] text-indigo-100">
-                Adapted to your schedule &amp; mastery profile
+              <div className="text-sm font-bold">Study Assistant</div>
+              <div className="text-[11px] text-slate-300">
+                Ask anything about Python syntax, logic, or concepts
               </div>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-white/80 hover:bg-white/15 hover:text-white"
-            aria-label="Close AI Tutor"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="Close Assistant"
           >
             <X className="h-5 w-5" />
           </button>
@@ -212,7 +212,7 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
           {loading && (
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
-              <span>AI Tutor is thinking...</span>
+              <span>Finding explanation...</span>
             </div>
           )}
         </div>

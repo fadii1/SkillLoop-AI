@@ -5,9 +5,10 @@ import {
   CalendarClock,
   GraduationCap,
   LayoutDashboard,
+  MessageSquare,
+  PenTool,
   Settings,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
   Users,
   X,
@@ -119,11 +120,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             }}
             className="flex items-center gap-2.5 text-start focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-lg"
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-sm">
               <GraduationCap className="h-4.5 w-4.5" />
             </div>
-            <span className="text-[15px] font-bold tracking-tight text-white whitespace-nowrap">
-              SkillLoop AI
+            <span className="text-[16px] font-bold tracking-tight text-white whitespace-nowrap">
+              SkillLoop
             </span>
           </a>
 
@@ -186,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
                 }`}
               >
-                <Sparkles className="h-4 w-4 shrink-0" />
+                <PenTool className="h-4 w-4 shrink-0" />
                 <span className="truncate">Content &amp; Queue</span>
               </a>
               <a
@@ -266,7 +267,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Clean AI Tutor Trigger */}
+        {/* Clean Study Assistant Trigger */}
         <div className="border-t border-slate-800/80 p-3.5">
           <button
             type="button"
@@ -274,10 +275,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onOpenTutor();
               onCloseMobile();
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500 whitespace-nowrap"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 border border-slate-700/80 px-3.5 py-2.5 text-xs font-semibold text-slate-100 transition-colors hover:bg-slate-700 hover:text-white whitespace-nowrap shadow-xs"
           >
-            <Sparkles className="h-3.5 w-3.5 shrink-0" />
-            <span>Ask AI Tutor</span>
+            <MessageSquare className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+            <span>Study Assistant</span>
           </button>
         </div>
       </aside>
