@@ -79,19 +79,19 @@ export const INITIAL_COURSES: Course[] = [
     title: "Python Programming",
     titleUr: "پائتھون پروگرامنگ",
     titleRomanUr: "Python Programming",
-    subtitle: "Beginner to Advanced · 18 micro-lessons",
-    status: "In Progress",
-    progress: 68,
+    subtitle: "Beginner to Advanced · 6 micro-lessons",
+    status: "Not Started",
+    progress: 0,
     thumbnail: ASSETS.pythonThumb,
-    totalLessons: 18,
-    completedLessons: 12,
+    totalLessons: 6,
+    completedLessons: 0,
     estimatedWeeklyMin: 60,
     modules: [
       {
         id: "py-m1",
         title: "Variables & Memory Binding",
         durationMin: 8,
-        completed: true,
+        completed: false,
         conceptNotes:
           "Variables in Python act as labeled references pointing to objects in memory. Assigning x = 5 binds the name x to the integer 5.",
         codeExample: `hours_studied = 2\nrate_per_day = 15\ntotal_minutes = hours_studied * rate_per_day\nprint(total_minutes)  # 30`,
@@ -107,7 +107,7 @@ export const INITIAL_COURSES: Course[] = [
         id: "py-m2",
         title: "Data Types & Arithmetic vs Strings",
         durationMin: 10,
-        completed: true,
+        completed: false,
         conceptNotes:
           "Python treats numbers (int/float) differently from text (str). Using + on integers adds numerically (5 + 3 = 8), whereas + on strings concatenates ('5' + '3' = '53').",
         codeExample: `print(5 + 3)      # 8 (integer addition)\nprint("5" + "3")  # "53" (string concatenation)`,
@@ -151,50 +151,35 @@ export const INITIAL_COURSES: Course[] = [
         offlineSummary:
           "Functions & Return Values Summary:\n- Define with def name(params):\n- Use return to pass results back.\n- Without return, Python returns None.",
       },
-    ],
-  },
-  {
-    id: "data-science-101",
-    title: "Data Science Basics",
-    titleUr: "ڈیٹا سائنس کی بنیادی باتیں",
-    titleRomanUr: "Data Science Basics",
-    subtitle: "Data Analysis & ML · 14 micro-lessons",
-    status: "Not Started",
-    progress: 0,
-    thumbnail: ASSETS.dataScienceThumb,
-    totalLessons: 14,
-    completedLessons: 0,
-    estimatedWeeklyMin: 45,
-    modules: [
       {
-        id: "ds-m1",
-        title: "Tabular Data & Pandas DataFrames",
+        id: "py-m5",
+        title: "Lists, Tuples & Dictionaries",
+        durationMin: 14,
+        completed: false,
+        conceptNotes:
+          "Lists are ordered and mutable ([1, 2, 3]). Dictionaries store key-value associations ({'topic': 'loops'}). Tuples are immutable records.",
+        codeExample: `topics = ['Loops', 'Functions']\ntopics.append('Classes')\nscores = {'Loops': 85, 'Functions': 92}\nprint(scores['Loops'])`,
+        captions: [
+          "[00:00] Storing collections of learning data in Python structures.",
+          "[04:20] Fast lookups by key using Python dictionaries.",
+        ],
+        offlineSummary:
+          "Data Collections Summary:\n- list.append(x) adds to end.\n- dict[key] retrieves values.\n- Use tuples for immutable coordinates.",
+      },
+      {
+        id: "py-m6",
+        title: "Error Handling & Defensive Coding",
         durationMin: 10,
         completed: false,
         conceptNotes:
-          "DataFrames store rows and columns like a programmable spreadsheet. Use .head() and .describe() to inspect datasets quickly.",
-        codeExample: `import pandas as pd\ndf = pd.DataFrame({"hours": [1, 2, 3], "score": [62, 74, 86]})\nprint(df["score"].mean())`,
+          "Wrap vulnerable operations in try-except blocks to prevent crashes from invalid user inputs or missing files.",
+        codeExample: `try:\n    val = int('abc')\nexcept ValueError:\n    val = 0\nprint(val)`,
         captions: [
-          "[00:00] Pandas DataFrames bring spreadsheet power into Python scripts.",
-          "[03:40] Inspect columns cleanly using df.head() and df.describe().",
+          "[00:00] Handling exceptions gracefully without terminating user sessions.",
+          "[03:45] Catch specific exception classes like ValueError or KeyError.",
         ],
         offlineSummary:
-          "Pandas DataFrames Summary:\n- 2D labeled rows & columns.\n- df['col'].mean() computes column averages.",
-      },
-      {
-        id: "ds-m2",
-        title: "Train / Test Splits & Overfitting",
-        durationMin: 12,
-        completed: false,
-        conceptNotes:
-          "Holding out a test set verifies whether your model generalizes to unseen adult learner schedules rather than memorizing noise.",
-        codeExample: `from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)`,
-        captions: [
-          "[00:00] Why you should never evaluate accuracy on training data alone.",
-          "[05:10] An 80/20 split checks real-world generalization.",
-        ],
-        offlineSummary:
-          "Train / Test Split Summary:\n- Keep 20% unseen test data.\n- Prevents overfitting.",
+          "Error Handling Summary:\n- try runs monitored code.\n- except catches specific error types.\n- finally executes cleanup reliably.",
       },
     ],
   },
@@ -203,19 +188,19 @@ export const INITIAL_COURSES: Course[] = [
     title: "Web Development",
     titleUr: "ویب ڈویلپمنٹ",
     titleRomanUr: "Web Development",
-    subtitle: "HTML, CSS & JavaScript · 16 micro-lessons",
-    status: "In Progress",
-    progress: 45,
+    subtitle: "HTML, CSS & JavaScript · 6 micro-lessons",
+    status: "Not Started",
+    progress: 0,
     thumbnail: ASSETS.webDevThumb,
-    totalLessons: 16,
-    completedLessons: 7,
+    totalLessons: 6,
+    completedLessons: 0,
     estimatedWeeklyMin: 50,
     modules: [
       {
         id: "wd-m1",
         title: "Semantic HTML & Accessible Landmarks",
         durationMin: 8,
-        completed: true,
+        completed: false,
         conceptNotes:
           "Using <main>, <nav>, <button>, and aria-labels makes interfaces keyboard-friendly and screen-reader ready.",
         codeExample: `<button type="button" aria-label="Read lesson aloud">Listen</button>`,
@@ -241,6 +226,336 @@ export const INITIAL_COURSES: Course[] = [
         offlineSummary:
           "DOM Events Summary:\n- Use addEventListener('click', fn).\n- Update DOM text safely via textContent.",
       },
+      {
+        id: "wd-m3",
+        title: "CSS Modern Layouts: Flexbox & Grid",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Flexbox handles 1D layout rows and columns (display: flex). CSS Grid creates robust 2D dashboard grids without float hacks.",
+        codeExample: `.container {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}`,
+        captions: [
+          "[00:00] Flexible box layout alignment along main and cross axes.",
+          "[05:10] CSS Grid templates for multi-card study dashboards.",
+        ],
+        offlineSummary:
+          "CSS Layout Summary:\n- justify-content controls main axis.\n- align-items controls cross axis.\n- Use gap instead of manual margins.",
+      },
+      {
+        id: "wd-m4",
+        title: "Asynchronous JavaScript & Fetch APIs",
+        durationMin: 14,
+        completed: false,
+        conceptNotes:
+          "Use async/await with fetch() to retrieve data from REST endpoints cleanly and handle network errors gracefully.",
+        codeExample: `async function loadLessons() {\n  const res = await fetch('/api/courses');\n  const data = await res.json();\n  return data;\n}`,
+        captions: [
+          "[00:00] Asynchronous promises and non-blocking browser I/O.",
+          "[06:00] Error handling with try-catch on HTTP responses.",
+        ],
+        offlineSummary:
+          "Async Fetch Summary:\n- await pauses only the async function.\n- Check res.ok before parsing JSON.",
+      },
+      {
+        id: "wd-m5",
+        title: "Modern React State & Component Architecture",
+        durationMin: 15,
+        completed: false,
+        conceptNotes:
+          "React components build modular user interfaces with useState and useEffect to synchronize state with UI renders.",
+        codeExample: `function Counter() {\n  const [count, setCount] = useState(0);\n  return <button onClick={() => setCount(count + 1)}>{count}</button>;\n}`,
+        captions: [
+          "[00:00] Declarative component state versus imperative DOM manipulation.",
+          "[07:15] Props down, events up architectural pattern.",
+        ],
+        offlineSummary:
+          "React Fundamentals:\n- Immutability: never mutate state directly.\n- Re-renders occur automatically on state updates.",
+      },
+      {
+        id: "wd-m6",
+        title: "Responsive Web Design & Mobile Breakpoints",
+        durationMin: 10,
+        completed: false,
+        conceptNotes:
+          "Use CSS media queries (@media (min-width: 768px)) and fluid rem units to deliver crisp layouts across phones and laptops.",
+        codeExample: `@media (max-width: 640px) {\n  .sidebar { display: none; }\n  .main-content { width: 100%; }\n}`,
+        captions: [
+          "[00:00] Mobile-first design principles for adult learner schedules.",
+          "[04:30] Testing responsive viewports cleanly.",
+        ],
+        offlineSummary:
+          "Responsive Design:\n- Design mobile-first.\n- Use relative rem/percentage units.",
+      },
+    ],
+  },
+  {
+    id: "data-science-101",
+    title: "Data Science Basics",
+    titleUr: "ڈیٹا سائنس کی بنیادی باتیں",
+    titleRomanUr: "Data Science Basics",
+    subtitle: "Data Analysis & ML · 5 micro-lessons",
+    status: "Not Started",
+    progress: 0,
+    thumbnail: ASSETS.dataScienceThumb,
+    totalLessons: 5,
+    completedLessons: 0,
+    estimatedWeeklyMin: 45,
+    modules: [
+      {
+        id: "ds-m1",
+        title: "Tabular Data & Pandas DataFrames",
+        durationMin: 10,
+        completed: false,
+        conceptNotes:
+          "DataFrames store rows and columns like a programmable spreadsheet. Use .head() and .describe() to inspect datasets quickly.",
+        codeExample: `import pandas as pd\ndf = pd.DataFrame({"hours": [1, 2, 3], "score": [62, 74, 86]})\nprint(df["score"].mean())`,
+        captions: [
+          "[00:00] Pandas DataFrames bring spreadsheet power into Python scripts.",
+          "[03:40] Inspect columns cleanly using df.head() and df.describe().",
+        ],
+        offlineSummary:
+          "Pandas DataFrames Summary:\n- 2D labeled rows & columns.\n- df['col'].mean() computes column averages.",
+      },
+      {
+        id: "ds-m2",
+        title: "Data Cleaning & Missing Value Imputation",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Real-world data has missing values (NaN). Use .isna(), .fillna(), or .dropna() to handle gaps reliably.",
+        codeExample: `df['score'] = df['score'].fillna(df['score'].median())\nclean_df = df.dropna(subset=['email'])`,
+        captions: [
+          "[00:00] Detecting missing data patterns in learning metrics.",
+          "[05:30] Median imputation versus dropping sparse rows.",
+        ],
+        offlineSummary:
+          "Data Cleaning Summary:\n- df.isna().sum() counts missing entries.\n- fillna() prevents pipeline crashes.",
+      },
+      {
+        id: "ds-m3",
+        title: "Exploratory Data Analysis & Visualizations",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Visual charts reveal distributions and outliers faster than raw numbers. Use scatter plots and histograms for pattern discovery.",
+        codeExample: `import matplotlib.pyplot as plt\nplt.hist(df['study_minutes'], bins=10)\nplt.title('Daily Study Distribution')\nplt.show()`,
+        captions: [
+          "[00:00] Transforming summary tables into actionable visual insights.",
+          "[04:45] Choosing the right chart for numerical versus categorical data.",
+        ],
+        offlineSummary:
+          "EDA Quick Card:\n- Histograms show distribution shapes.\n- Scatter plots uncover correlation.",
+      },
+      {
+        id: "ds-m4",
+        title: "Train / Test Splits & Overfitting",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Holding out a test set verifies whether your model generalizes to unseen adult learner schedules rather than memorizing noise.",
+        codeExample: `from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)`,
+        captions: [
+          "[00:00] Why you should never evaluate accuracy on training data alone.",
+          "[05:10] An 80/20 split checks real-world generalization.",
+        ],
+        offlineSummary:
+          "Train / Test Split Summary:\n- Keep 20% unseen test data.\n- Prevents overfitting.",
+      },
+      {
+        id: "ds-m5",
+        title: "Supervised Machine Learning with Scikit-Learn",
+        durationMin: 15,
+        completed: false,
+        conceptNotes:
+          "Fit predictive models (Linear Regression, Decision Trees) on labeled training datasets and evaluate with metrics like MAE or Accuracy.",
+        codeExample: `from sklearn.linear_model import LinearRegression\nmodel = LinearRegression()\nmodel.fit(X_train, y_train)\npredictions = model.predict(X_test)`,
+        captions: [
+          "[00:00] Training your first predictive machine learning model.",
+          "[06:30] Measuring prediction error against unseen test labels.",
+        ],
+        offlineSummary:
+          "Supervised ML Summary:\n- model.fit(X, y) trains weights.\n- model.predict(X) generates forecasts.",
+      },
+    ],
+  },
+  {
+    id: "sql-101",
+    title: "Database & SQL Essentials",
+    titleUr: "ڈیٹا بیس اور ایس کیو ایل (SQL)",
+    titleRomanUr: "Database & SQL Essentials",
+    subtitle: "Relational Queries & PostgreSQL · 5 micro-lessons",
+    status: "Not Started",
+    progress: 0,
+    thumbnail: ASSETS.webDevThumb,
+    totalLessons: 5,
+    completedLessons: 0,
+    estimatedWeeklyMin: 45,
+    modules: [
+      {
+        id: "sql-m1",
+        title: "Relational Schema & Primary Keys",
+        durationMin: 8,
+        completed: false,
+        conceptNotes:
+          "Relational databases organize information into structured tables with columns and types. Primary keys guarantee unique row identity.",
+        codeExample: `CREATE TABLE learners (\n  id SERIAL PRIMARY KEY,\n  email VARCHAR(255) UNIQUE NOT NULL,\n  created_at TIMESTAMP DEFAULT NOW()\n);`,
+        captions: [
+          "[00:00] Designing scalable database tables for user records.",
+          "[03:40] Why every table needs an immutable primary key.",
+        ],
+        offlineSummary:
+          "Schema Basics:\n- PRIMARY KEY guarantees uniqueness.\n- NOT NULL prevents undefined missing values.",
+      },
+      {
+        id: "sql-m2",
+        title: "SELECT Queries, Filtering & WHERE Clauses",
+        durationMin: 10,
+        completed: false,
+        conceptNotes:
+          "Query data with SELECT, filter with WHERE, and sort rows with ORDER BY and LIMIT.",
+        codeExample: `SELECT name, email, streak_days\nFROM users\nWHERE streak_days >= 7\nORDER BY streak_days DESC\nLIMIT 10;`,
+        captions: [
+          "[00:00] Writing declarative queries to pull specific data slices.",
+          "[04:15] Combining multiple conditions with AND, OR, and LIKE.",
+        ],
+        offlineSummary:
+          "SELECT Summary:\n- WHERE filters rows before sorting.\n- LIMIT restricts result set size.",
+      },
+      {
+        id: "sql-m3",
+        title: "Table Joins: INNER & LEFT JOIN",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Foreign keys connect related tables. Use INNER JOIN to match both sides, or LEFT JOIN to preserve all parent records.",
+        codeExample: `SELECT u.name, q.topic_name, q.score\nFROM users u\nLEFT JOIN quiz_attempts q ON u.id = q.user_id;`,
+        captions: [
+          "[00:00] Joining multiple normalized tables without duplication.",
+          "[05:30] INNER JOIN vs LEFT JOIN with practical examples.",
+        ],
+        offlineSummary:
+          "JOIN Summary:\n- INNER JOIN keeps matching rows only.\n- LEFT JOIN preserves all left-table rows.",
+      },
+      {
+        id: "sql-m4",
+        title: "Aggregations: GROUP BY, COUNT & AVG",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Aggregate functions compute summary statistics (COUNT, SUM, AVG) across grouped categories.",
+        codeExample: `SELECT topic_name, COUNT(*) AS attempts, ROUND(AVG(score), 1) AS avg_score\nFROM quiz_attempts\nGROUP BY topic_name\nHAVING COUNT(*) >= 5;`,
+        captions: [
+          "[00:00] Summarizing millions of student answers into topic insights.",
+          "[06:00] WHERE filters rows before grouping; HAVING filters groups after.",
+        ],
+        offlineSummary:
+          "Aggregations Summary:\n- GROUP BY clusters identical column values.\n- HAVING filters aggregate results.",
+      },
+      {
+        id: "sql-m5",
+        title: "Indexes & Query Performance Optimization",
+        durationMin: 10,
+        completed: false,
+        conceptNotes:
+          "B-tree indexes dramatically speed up WHERE lookups from O(N) full-table scans to O(log N) tree navigations.",
+        codeExample: `CREATE INDEX idx_users_email ON users (email);\nEXPLAIN ANALYZE SELECT * FROM users WHERE email = 'test@example.com';`,
+        captions: [
+          "[00:00] How database indexes work under the hood.",
+          "[04:20] Reading EXPLAIN ANALYZE plans to eliminate bottlenecks.",
+        ],
+        offlineSummary:
+          "Indexing Quick Card:\n- Index columns used heavily in WHERE or JOIN.\n- Avoid indexing low-cardinality boolean columns.",
+      },
+    ],
+  },
+  {
+    id: "genai-101",
+    title: "Generative AI & LLM Applications",
+    titleUr: "جنریٹو اے آئی اور پرامپٹ انجینئرنگ",
+    titleRomanUr: "Generative AI & LLM Applications",
+    subtitle: "Prompt Engineering, Gemini APIs & RAG · 5 micro-lessons",
+    status: "Not Started",
+    progress: 0,
+    thumbnail: ASSETS.heroIllustration,
+    totalLessons: 5,
+    completedLessons: 0,
+    estimatedWeeklyMin: 50,
+    modules: [
+      {
+        id: "genai-m1",
+        title: "LLM Fundamentals, Tokens & Temperature",
+        durationMin: 10,
+        completed: false,
+        conceptNotes:
+          "LLMs predict the next token based on context probability. Temperature controls randomness (0.0 = deterministic, 0.9 = creative).",
+        codeExample: `prompt = "Explain Python in 1 sentence."\n# Temperature 0.2 gives precise, reproducible educational hints`,
+        captions: [
+          "[00:00] Understanding tokens and context windows in modern AI models.",
+          "[04:15] How temperature and top-p sampling affect output quality.",
+        ],
+        offlineSummary:
+          "LLM Fundamentals:\n- 1 token ≈ 4 characters of English text.\n- Lower temperature ensures consistency in tutoring.",
+      },
+      {
+        id: "genai-m2",
+        title: "Prompt Engineering: Few-Shot & Socratic Framing",
+        durationMin: 12,
+        completed: false,
+        conceptNotes:
+          "Clear system instructions, role assignment, and few-shot examples guide LLMs to produce structured, non-punitive learning feedback.",
+        codeExample: `system_prompt = \"\"\"\nYou are an adaptive tutor for working adults.\nRule: Always ask a guiding question before giving code solutions.\nFormat: Concise under 100 words.\n\"\"\"`,
+        captions: [
+          "[00:00] Crafting robust system prompts that prevent hallucination.",
+          "[05:40] Few-shot exemplars for consistent JSON formatting.",
+        ],
+        offlineSummary:
+          "Prompt Engineering:\n- Assign clear role and constraints.\n- Provide expected output schema.",
+      },
+      {
+        id: "genai-m3",
+        title: "Integrating Gemini APIs with Structured JSON",
+        durationMin: 14,
+        completed: false,
+        conceptNotes:
+          "Call Gemini generateContent with responseMimeType='application/json' and responseSchema to guarantee reliable UI data parsing.",
+        codeExample: `response = await ai.models.generateContent({\n  model: 'gemini-2.0-flash',\n  contents: user_question,\n  config: { responseMimeType: 'application/json' }\n})`,
+        captions: [
+          "[00:00] Connecting AI backends to frontend interfaces safely.",
+          "[06:20] Enforcing strict JSON schema responses.",
+        ],
+        offlineSummary:
+          "API Integration:\n- Use structured JSON outputs.\n- Implement graceful offline fallbacks.",
+      },
+      {
+        id: "genai-m4",
+        title: "Embeddings, Vector Search & RAG Foundations",
+        durationMin: 14,
+        completed: false,
+        conceptNotes:
+          "Retrieval-Augmented Generation (RAG) converts course notes into vector embeddings to ground AI answers in validated syllabus facts.",
+        codeExample: `vector = await ai.models.embedContent({ content: course_notes })\n# Find closest lesson chunks using cosine similarity`,
+        captions: [
+          "[00:00] Grounding AI responses in custom course curriculum.",
+          "[07:10] Cosine similarity search in vector databases.",
+        ],
+        offlineSummary:
+          "RAG Basics:\n- Embeddings map text to semantic coordinates.\n- Search syllabus chunks before asking LLM.",
+      },
+      {
+        id: "genai-m5",
+        title: "AI Safety, Guardrails & Evaluation",
+        durationMin: 10,
+        completed: false,
+        conceptNotes:
+          "Implement validation checks and guardrails so the tutor remains constructive, secure, and adheres strictly to learning objectives.",
+        codeExample: `def validate_ai_reply(text):\n    assert len(text) > 10, 'Response too short'\n    assert not contains_pii(text), 'PII detected'`,
+        captions: [
+          "[00:00] Building safe, production-ready AI learning assistants.",
+          "[05:00] Guardrails against prompt injection and toxic output.",
+        ],
+        offlineSummary:
+          "AI Safety Summary:\n- Validate input and sanitize output.\n- Maintain user privacy and safety.",
+      },
     ],
   },
 ];
@@ -252,10 +567,10 @@ export const INITIAL_TOPIC_MASTERY: TopicMastery[] = [
     name: "Variables",
     nameUr: "ویری ایبلز (Variables)",
     nameRomanUr: "Variables",
-    mastery: 90,
-    retention_health: "Healthy",
-    lastPracticedDaysAgo: 1,
-    summary: "Strong command of assignment, naming rules, and dynamic types.",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "Assignment, naming rules, and dynamic types.",
   },
   {
     id: "topic-datatypes",
@@ -263,11 +578,10 @@ export const INITIAL_TOPIC_MASTERY: TopicMastery[] = [
     name: "Data Types",
     nameUr: "ڈیٹا ٹائپس (Data Types)",
     nameRomanUr: "Data Types",
-    mastery: 80,
-    retention_health: "Healthy",
-    lastPracticedDaysAgo: 2,
-    summary:
-      "Solid grasp of int, float, str; occasional slip on implicit vs explicit casting.",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "Integers, floats, strings, and safe type conversion.",
   },
   {
     id: "topic-loops",
@@ -275,11 +589,10 @@ export const INITIAL_TOPIC_MASTERY: TopicMastery[] = [
     name: "Loops",
     nameUr: "لوپس (Loops)",
     nameRomanUr: "Loops",
-    mastery: 45,
+    mastery: 0,
     retention_health: "Needs Review",
-    lastPracticedDaysAgo: 4,
-    summary:
-      "Needs scaffolded practice on range() boundaries and accumulator variables.",
+    lastPracticedDaysAgo: 0,
+    summary: "For loops, while loops, and range() boundary iteration.",
   },
   {
     id: "topic-functions",
@@ -287,11 +600,10 @@ export const INITIAL_TOPIC_MASTERY: TopicMastery[] = [
     name: "Functions",
     nameUr: "فنکشنز (Functions)",
     nameRomanUr: "Functions",
-    mastery: 30,
-    retention_health: "At Risk",
-    lastPracticedDaysAgo: 5,
-    summary:
-      "Priority focus: return vs print() and passing arguments cleanly.",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "Function definition, parameters, and explicit return values.",
   },
   {
     id: "topic-dom",
@@ -299,10 +611,54 @@ export const INITIAL_TOPIC_MASTERY: TopicMastery[] = [
     name: "DOM & Events",
     nameUr: "DOM اور ایونٹس",
     nameRomanUr: "DOM & Events",
-    mastery: 52,
+    mastery: 0,
     retention_health: "Needs Review",
-    lastPracticedDaysAgo: 3,
-    summary: "Understands selectors; practicing event delegation and state sync.",
+    lastPracticedDaysAgo: 0,
+    summary: "DOM tree, selectors, event listeners, and UI updates.",
+  },
+  {
+    id: "topic-css",
+    courseId: "web-dev-101",
+    name: "CSS Flexbox & Layout",
+    nameUr: "سی ایس ایس فلیکس باکس",
+    nameRomanUr: "CSS Flexbox & Layout",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "Flexbox axes, alignment, and responsive container layout.",
+  },
+  {
+    id: "topic-pandas",
+    courseId: "data-science-101",
+    name: "Pandas DataFrames",
+    nameUr: "پانڈاس ڈیٹا فریم",
+    nameRomanUr: "Pandas DataFrames",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "2D tabular operations, column averages, and EDA.",
+  },
+  {
+    id: "topic-sql",
+    courseId: "sql-101",
+    name: "SQL Queries & Joins",
+    nameUr: "ایس کیو ایل اور ٹیبل جوائنز",
+    nameRomanUr: "SQL Queries & Joins",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "SELECT, WHERE filtering, INNER JOIN, and GROUP BY.",
+  },
+  {
+    id: "topic-genai",
+    courseId: "genai-101",
+    name: "Prompt Engineering & LLMs",
+    nameUr: "پرامپٹ انجینئرنگ اور اے آئی",
+    nameRomanUr: "Prompt Engineering & LLMs",
+    mastery: 0,
+    retention_health: "Needs Review",
+    lastPracticedDaysAgo: 0,
+    summary: "System prompts, zero/few-shot framing, and model parameters.",
   },
 ];
 
@@ -464,6 +820,76 @@ export const QUIZ_BANK: QuizQuestion[] = [
     conceptHint: "Assignment to .onclick replaces any prior handler.",
     approved_by_educator: true,
   },
+  {
+    id: "q-css-easy",
+    courseId: "web-dev-101",
+    topicId: "topic-css",
+    topicName: "CSS Flexbox & Layout",
+    difficulty: "Easy",
+    question: "Which CSS property aligns items along the main axis in a flex container?",
+    questionUr: "فلیکس کنٹینر میں آئٹمز کو مین ایکسز کے ساتھ الائن کرنے کے لیے کون سی پراپرٹی استعمال ہوتی ہے؟",
+    questionRomanUr: "Flex container mein items ko main axis ke mutabiq align karne ke liye kaunsi property use hoti hai?",
+    codeSnippet: `.row { display: flex; /* alignment */ }`,
+    options: [
+      "justify-content",
+      "align-items",
+      "flex-direction",
+      "align-content",
+    ],
+    correctAnswer: "justify-content",
+    conceptHint: "justify-content aligns along the main axis; align-items aligns along the cross axis.",
+    approved_by_educator: true,
+  },
+  {
+    id: "q-pandas-easy",
+    courseId: "data-science-101",
+    topicId: "topic-pandas",
+    topicName: "Pandas DataFrames",
+    difficulty: "Easy",
+    question: "Which Pandas method returns the first 5 rows of a DataFrame?",
+    questionUr: "ڈیٹا فریم کی پہلی 5 قطاریں دیکھنے کے لیے پانڈاس کا کون سا میتھڈ استعمال ہوتا ہے؟",
+    questionRomanUr: "DataFrame ki pehli 5 rows dekhne ke liye Pandas ka kaunsa method use hota hai?",
+    codeSnippet: `import pandas as pd\ndf = pd.read_csv('students.csv')`,
+    options: ["df.head()", "df.top(5)", "df.first(5)", "df.preview()"],
+    correctAnswer: "df.head()",
+    conceptHint: "df.head() defaults to returning the first 5 rows of the DataFrame.",
+    approved_by_educator: true,
+  },
+  {
+    id: "q-sql-easy",
+    courseId: "sql-101",
+    topicId: "topic-sql",
+    topicName: "SQL Queries & Joins",
+    difficulty: "Easy",
+    question: "Which SQL clause is used to filter rows based on a specific condition?",
+    questionUr: "مخصوص شرط کی بنیاد پر قطاروں کو فلٹر کرنے کے لیے SQL کا کون سا کلاز استعمال ہوتا ہے؟",
+    questionRomanUr: "Specific condition par rows filter karne ke liye SQL ka kaunsa clause use hota hai?",
+    codeSnippet: `SELECT * FROM users /* filter condition */ score >= 80;`,
+    options: ["WHERE", "HAVING", "FILTER", "ORDER BY"],
+    correctAnswer: "WHERE",
+    conceptHint: "WHERE filters individual rows before any grouping occurs.",
+    approved_by_educator: true,
+  },
+  {
+    id: "q-genai-easy",
+    courseId: "genai-101",
+    topicId: "topic-genai",
+    topicName: "Prompt Engineering & LLMs",
+    difficulty: "Easy",
+    question: "What does setting temperature to 0.0 do in an LLM call?",
+    questionUr: "اے آئی ماڈل میں ٹمپریچر کو 0.0 پر سیٹ کرنے سے کیا ہوتا ہے؟",
+    questionRomanUr: "AI model mein temperature 0.0 set karne se kya hota hai?",
+    codeSnippet: `response = ai.generate(prompt, temperature=0.0)`,
+    options: [
+      "Makes the output deterministic and consistent",
+      "Makes the response completely random and creative",
+      "Increases the speed by skipping safety filters",
+      "Disables the context window",
+    ],
+    correctAnswer: "Makes the output deterministic and consistent",
+    conceptHint: "Lower temperature values reduce randomness and pick the highest-probability tokens.",
+    approved_by_educator: true,
+  },
 ];
 
 export const DIAGNOSTIC_QUESTIONS: QuizQuestion[] = [
@@ -482,40 +908,7 @@ export const WEEKLY_PROGRESS_CHART = [
   { day: "Sun", thisWeek: 76, lastWeek: 64, minutes: 15 },
 ];
 
-export const INITIAL_ACTIVITY: ActivityItem[] = [
-  {
-    id: "act-1",
-    title: "Completed Data Types Micro-Quiz",
-    meta: "Python Programming · 4/5 correct",
-    score: "80%",
-    timeAgo: "2h ago",
-    type: "quiz",
-  },
-  {
-    id: "act-2",
-    title: "Reviewed Loops Visual Guide",
-    meta: "Python Programming · 12 min session",
-    score: "+6% mastery",
-    timeAgo: "Yesterday",
-    type: "concept",
-  },
-  {
-    id: "act-3",
-    title: "7-Day Flexible Streak Achieved",
-    meta: "Evening 15-min slot consistency",
-    score: "7 Days",
-    timeAgo: "2 days ago",
-    type: "streak",
-  },
-  {
-    id: "act-4",
-    title: "DOM & Events Practice",
-    meta: "Web Development · 3/4 correct",
-    score: "75%",
-    timeAgo: "3 days ago",
-    type: "quiz",
-  },
-];
+export const INITIAL_ACTIVITY: ActivityItem[] = [];
 
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
@@ -1033,38 +1426,153 @@ export function generateRuleBasedFeedback(params: {
 export function generateRuleBasedTutorReply(
   userMessage: string,
   language: LanguageCode,
-  topics: TopicMastery[]
+  topics: TopicMastery[],
+  learnerName?: string
 ): string {
-  const lower = userMessage.toLowerCase();
+  const lower = userMessage.toLowerCase().trim();
+  const name = learnerName ? learnerName.split(" ")[0] : "Learner";
   const weakest = [...topics].sort((a, b) => a.mastery - b.mastery)[0];
+  const weakestName = weakest?.name || "Python Basics";
+  const weakestNameUr = weakest?.nameUr || "پائتھون کی بنیادیں";
 
-  if (lower.includes("loop") || lower.includes("range")) {
+  // 1. Greetings & General Help
+  if (
+    lower === "hi" ||
+    lower === "hello" ||
+    lower === "hey" ||
+    lower.includes("salam") ||
+    lower.includes("kaise ho") ||
+    lower.includes("help") ||
+    lower.includes("madad")
+  ) {
     if (language === "ur") {
-      return "سوچیں: اگر `range(3)` صفر سے شروع ہو اور 3 سے پہلے رکے، تو یہ کتنے نمبر بنائے گا؟ (Hint: 0, 1, 2)۔ جب آپ یہ گن لیں تو لوپ کی تعداد خود واضح ہو جائے گی!";
+      return `السلام علیکم ${name}! میں آپ کا SkillLoop اسٹڈی اسسٹنٹ ہوں۔ میں پروگرامنگ، پائتھون کے کانسیپٹس، ویری ایبلز، لوپس، فنکشنز، یا ویب ڈویلپمنٹ سمجھانے کے لیے حاضر ہوں۔ آپ مجھ سے کسی بھی موضوع کے بارے میں پوچھ سکتے ہیں!`;
     }
     if (language === "roman_ur") {
-      return "Sochein: agar `range(3)` 0 se shuru ho aur 3 se pehle ruke, to kitne numbers banenge? (Hint: 0, 1, 2). Aap bataiye is loop mein print kitni baar chalega?";
+      return `Salam ${name}! Main aapka SkillLoop study assistant hoon. Main Python, loops, variables, functions, ya kisi bhi programming concept ko asaan alfaz mein samjha sakta hoon. Aap mujhse koi bhi sawal pooch sakte hain!`;
     }
-    return "Socratic Hint: If `range(3)` starts at `0` and stops right before `3`, which three numbers does it step through? Once you trace those indices, try running a 10-minute Loops drill!";
+    return `Hello ${name}! I am your SkillLoop adaptive study assistant. I can help explain programming concepts, debug errors, break down Python loops, functions, variables, or guide your 15-minute study sessions. What topic would you like to explore today?`;
   }
 
-  if (lower.includes("function") || lower.includes("return")) {
+  // 2. Loops & Range Iteration
+  if (lower.includes("loop") || lower.includes("range") || lower.includes("while") || lower.includes("for loop")) {
     if (language === "ur") {
-      return "ایک اشارہ: `print()` صرف اسکرین پر دکھاتا ہے، جبکہ `return` نتیجہ واپس بھیجتا ہے۔ اگر آپ کسی ویری ایبل میں جواب محفوظ کرنا چاہیں تو کون سا استعمال کریں گے؟";
+      return `**لوپس (Loops) کا بنیادی تصور:**\n\nلوپ کسی کام کو بار بار دہرانے کے لیے استعمال ہوتا ہے۔\n- پائتھون میں \`for i in range(1, 4):\` ایک ایک کر کے 1، 2، 3 پر چلتا ہے (آخری نمبر یعنی 4 شامل نہیں ہوتا)۔\n- **اشارہ:** اگر آپ کو \`range(5)\` ملے تو یہ 0 سے 4 تک 5 بار چلے گا۔\n\nکیا آپ کسی خاص لوپ کے مسئلے کو حل کرنا چاہتے ہیں؟`;
     }
     if (language === "roman_ur") {
-      return "Ek hint: `print()` sirf screen par dikhata hai, jabke `return` value wapas code ko deta hai. Agar result variable mein save karna ho to kya use hoga?";
+      return `**Loops ka Basic Concept:**\n\nLoop kisi code ko bar bar chalane ke liye use hota hai.\n- Python mein \`for i in range(1, 4):\` 1, 2, 3 tak chalega (4 include nahi hoga).\n- **Key Rule:** \`range(start, stop)\` hamesha stop se pehle rukta hai.\n- \`range(5)\` ka matlab 0 se 4 tak total 5 iterations.\n\nAap kisi specific loop code ko trace karna chahte hain?`;
     }
-    return "Socratic Hint: Imagine a calculator screen (`print`) versus copying the number onto your notepad (`return`). Which one lets the next line of code reuse the result?";
+    return `**Understanding Loops & \`range()\` in Python:**\n\nA loop repeats a block of code efficiently.\n- \`range(start, stop, step)\` always stops *before* the \`stop\` integer.\n- \`for i in range(3):\` yields \`0, 1, 2\` (3 iterations).\n- **Accumulator Pattern:** Always initialize your counter or total variable *outside* the loop (e.g., \`total = 0\`) before adding to it inside.\n\nWould you like a quick 1-line puzzle to test your loop tracing?`;
   }
 
+  // 3. Variables & Memory Binding
+  if (lower.includes("variable") || lower.includes("memory") || lower.includes("assign") || lower.includes("binding")) {
+    if (language === "ur") {
+      return `**ویری ایبلز (Variables) کیا ہیں؟**\n\nپائتھون میں ویری ایبل میموری میں موجود کسی آبجیکٹ کا نام یا لیبل ہوتا ہے۔\n- مثال: \`score = 100\` میں \`score\` لیبل ہے جو نمبر 100 کی طرف اشارہ کر رہا ہے۔\n- پائتھون میں ویری ایبل کی قسم (Data Type) خود بخود طے ہو جاتی ہے، الگ سے بتانے کی ضرورت نہیں ہوتی۔`;
+    }
+    if (language === "roman_ur") {
+      return `**Variables aur Memory Binding:**\n\nPython mein variable kisi box ki tarah nahi balki memory mein maujood object ka 'name tag' ya label hota hai.\n- Example: \`x = 10\` likhne se label \`x\` integer 10 par bind ho jata hai.\n- Variable names ke liye snake_case use karein (e.g. \`student_score = 95\`).`;
+    }
+    return `**Variables & Memory Binding in Python:**\n\nIn Python, variables act as labeled references pointing to objects in memory rather than fixed storage boxes.\n- \`x = [1, 2, 3]\` binds the name \`x\` to the list.\n- If you write \`y = x\`, both names point to the *exact same* list in memory (aliasing).\n- Always use descriptive snake_case names (e.g., \`study_minutes = 15\`).`;
+  }
+
+  // 4. Functions & Return vs Print
+  if (lower.includes("function") || lower.includes("return") || lower.includes("def ") || lower.includes("parameter") || (lower.includes("print") && lower.includes("return"))) {
+    const isComparePrintReturn = lower.includes("difference") || (lower.includes("print") && lower.includes("return"));
+
+    if (isComparePrintReturn) {
+      if (language === "ur") {
+        return `**\`print()\` اور \`return\` میں بنیادی فرق:**\n\n- **\`print()\` کا کام:** یہ صرف اسکرین پر ٹیکسٹ دکھاتا ہے تاکہ انسان دیکھ سکے، لیکن وہ ویلیو میموری میں محفوظ نہیں ہوتی۔\n- **\`return\` کا کام:** یہ فنکشن سے ویلیو واپس بھیجتا ہے تاکہ اسے کسی ویری ایبل میں محفوظ کر کے آگے حساب کتاب میں استعمال کیا جا سکے۔\n\n\`\`\`python\n# 1. print() سے جواب ضائع ہو جاتا ہے:\ndef add_show(a, b):\n    print(a + b)\n\nx = add_show(2, 3)  # اسکرین پر 5 دکھے گا\nprint(x)              # None (ویلیو سیو نہیں ہوئی!)\n\n# 2. return سے ویلیو محفوظ رہتی ہے:\ndef add_calc(a, b):\n    return a + b\n\ny = add_calc(2, 3)\nprint(y * 2)          # 10 (ویلیو آگے استعمال ہو گئی!)\n\`\`\`\n\nاگر فنکشن میں \`return\` نہ لکھا جائے تو پائتھون خود بخود \`None\` واپس کرتا ہے۔`;
+      }
+      if (language === "roman_ur") {
+        return `**\`print()\` vs \`return\` ka Farq:**\n\n- **\`print()\`: ** Sirf console/screen par output dikhata hai. Program ke liye value lost ho jati hai.\n- **\`return\`: ** Value ko wapas bhejta hai taake doosre variables use kar sakein.\n\n\`\`\`python\n# 1. print() sirf dikhata hai:\ndef add_show(a, b):\n    print(a + b)\n\nx = add_show(2, 3) # Console par 5 aayega\nprint(x)             # None! (Kuch save nahi hua)\n\n# 2. return value wapas deta hai:\ndef add_calc(a, b):\n    return a + b\n\ny = add_calc(2, 3)\nprint(y * 2)         # 10! (Value multiply ho gayi)\n\`\`\`\n\n**Rule:** Agar result aage use karna hai to hamesha \`return\` use karein!`;
+      }
+      return `**Difference Between \`print()\` and \`return\`:**\n\n- **\`print()\`:** Displays text on the terminal screen for human eyes. It does **not** give any value back to your program.\n- **\`return\`:** Hands the calculated result back to the caller so you can store it in a variable and reuse it.\n\n\`\`\`python\n# Example 1: print() loses the value\ndef add_show(a, b):\n    print(a + b)\n\nx = add_show(2, 3)  # Prints: 5 to screen\nprint(x)              # Prints: None (x has no saved data!)\n\n# Example 2: return saves the value for reuse\ndef add_calc(a, b):\n    return a + b\n\ny = add_calc(2, 3)\nprint(y * 2)          # Prints: 10 (Saved and multiplied!)\n\`\`\`\n\n**Golden Rule:** Think of \`print()\` as a television display, and \`return\` as handing money into your wallet.`;
+    }
+
+    if (language === "ur") {
+      return `**فنکشنز (Functions) کا بنیادی تصور:**\n\nفنکشن ایک ایسا کوڈ بلاک ہے جسے بار بار استعمال کیا جا سکتا ہے (\`def my_func():\`)۔\n\`\`\`python\ndef square(n):\n    return n * n\n\nresult = square(5)  # 25\n\`\`\`\n- **اہم نکتہ:** \`return\` وہ نتیجہ واپس بھیجتا ہے جسے آپ ویری ایبل میں محفوظ کر سکتے ہیں۔ اگر \`return\` نہ ہو تو فنکشن \`None\` دیتا ہے۔`;
+    }
+    if (language === "roman_ur") {
+      return `**Functions ka Basic Concept:**\n\nFunction reusable code block hota hai jo \`def\` keyword se banta hai:\n\`\`\`python\ndef square(n):\n    return n * n\n\nresult = square(5)  # result mein 25 aayega\n\`\`\`\n- **Crucial Rule:** \`return\` statement value wapas caller ko deti hai. Bina return ke Python function \`None\` deta hai.`;
+    }
+    return `**Functions & Return Values:**\n\nFunctions bundle reusable code logic with inputs (parameters) and an output (\`return\`):\n\`\`\`python\ndef square(n):\n    return n * n\n\nresult = square(5)  # result holds 25\n\`\`\`\n- **Key Takeaway:** Use \`return\` whenever another part of your code needs to use the function's output. Without an explicit \`return\`, Python functions evaluate to \`None\`.`;
+  }
+
+  // 5. Data Types & Type Conversion / Casting
+  if (lower.includes("data type") || lower.includes("datatype") || lower.includes("string") || lower.includes("int") || lower.includes("float") || lower.includes("str")) {
+    if (language === "ur") {
+      return `**ڈیٹا ٹائپس (Data Types):**\n\n- \`int\`: پورے نمبر (جیسے 5, 20)\n- \`float\`: اعشاریہ والے نمبر (جیسے 3.14)\n- \`str\`: ٹیکسٹ یا تحریر کوٹیشنز میں (جیسے "Python")\n- **دھیان رہے:** \`5 + 3\` کا جواب \`8\` ہوگا، جبکہ \`"5" + "3"\` کا جواب \`"53"\` (سٹرنگ کنکیٹینیشن) ہوگا۔`;
+    }
+    if (language === "roman_ur") {
+      return `**Data Types & Type Conversion:**\n\n- **int:** Pure numbers (e.g. 10, -5)\n- **float:** Decimal numbers (e.g. 15.5)\n- **str:** Quotes ke andar text (e.g. "SkillLoop")\n- **Important:** \`5 + 3 = 8\` (addition), jabke \`"5" + "3" = "53"\` (concatenation). User input ko number banane ke liye \`int(input)\` use karein.`;
+    }
+    return `**Data Types & Arithmetic vs Strings:**\n\nPython distinguishes numbers from text strictly:\n- Numerical: \`int\` (e.g., 5) and \`float\` (e.g., 5.0).\n- Text: \`str\` (quoted text like \`"5"\`).\n- Adding numbers (\`5 + 3\`) yields \`8\` (arithmetic).\n- Adding strings (\`"5" + "3"\`) yields \`"53"\` (string concatenation).\n- Use \`int("5")\` or \`float("3.14")\` to parse text safely before doing math.`;
+  }
+
+  // 6. Conditionals (if, elif, else)
+  if (lower.includes("if") || lower.includes("else") || lower.includes("elif") || lower.includes("conditional")) {
+    if (language === "ur") {
+      return `**شرائط (Conditionals):**\n\nپائتھون میں فیصلے کرنے کے لیے \`if\`, \`elif\`, اور \`else\` استعمال ہوتے ہیں۔\n\`\`\`python\nif score >= 90:\n    print("بہترین")\nelif score >= 50:\n    print("پاس")\nelse:\n    print("دوبارہ کوشش کریں")\n\`\`\`\nانڈینٹیشن (چار خالی جگہیں) دینا لازمی ہے!`;
+    }
+    if (language === "roman_ur") {
+      return `**Conditionals (if-elif-else):**\n\nDecisions lene ke liye \`if\`, \`elif\`, \`else\` use hota hai:\n\`\`\`python\nif score >= 80:\n    print("Pass")\nelse:\n    print("Needs practice")\n\`\`\`\nHar condition ke baad colon (\`:\`) aur 4 spaces ki indentation zaroori hai.`;
+    }
+    return `**Conditional Logic (\`if\`, \`elif\`, \`else\`):**\n\nControl flow lets your code branch based on conditions:\n\`\`\`python\nif mastery >= 80:\n    status = "Proficient"\nelif mastery >= 50:\n    status = "Reviewing"\nelse:\n    status = "Needs Practice"\n\`\`\`\nAlways remember the colon \`:\` after each test, and indent the block by 4 spaces.`;
+  }
+
+  // 7. Lists, Dictionaries & Collections
+  if (lower.includes("list") || lower.includes("dict") || lower.includes("dictionary") || lower.includes("array") || lower.includes("tuple")) {
+    if (language === "ur") {
+      return `**لسٹس اور ڈکشنریز (Lists & Dictionaries):**\n\n- **List:** ترتیب وار ڈیٹا کے لیے مربع بریکٹ \`items = ["Python", "JS", "HTML"]\`۔ انڈیکس صفر سے شروع ہوتا ہے (\`items[0]\` پہلا آئٹم ہے)۔\n- **Dictionary:** کلید اور قیمت (Key-Value) کے لیے \`user = {"name": "${name}", "score": 90}\`۔`;
+    }
+    if (language === "roman_ur") {
+      return `**Lists aur Dictionaries:**\n\n- **List:** Ordered collection \`courses = ["Python", "WebDev", "DataScience"]\` (0-indexed: \`courses[0]\` pehla course hai).\n- **Dictionary:** Key-value pairs \`learner = {"name": "${name}", "streak": 1}\`.\n- Nayi item add karne ke liye \`courses.append("AI")\` use hota hai.`;
+    }
+    return `**Lists & Dictionaries in Python:**\n\n- **Lists (\`[]\`):** Ordered, mutable collections. Python is 0-indexed: \`items[0]\` accesses the first element. Use \`.append(x)\` to add items to the end.\n- **Dictionaries (\`{}\`):** Key-value lookups. Access values via \`data["key"]\`. Great for structured records like learner profiles.`;
+  }
+
+  // 8. Web Development / DOM / HTML / CSS / JS
+  if (lower.includes("html") || lower.includes("css") || lower.includes("dom") || lower.includes("web") || lower.includes("javascript") || lower.includes("js")) {
+    if (language === "ur") {
+      return `**ویب ڈویلپمنٹ (Web Development):**\n\n- **HTML:** صفحے کا ڈھانچہ بناتا ہے (مثلاً \`<button>\`, \`<main>\`)۔\n- **CSS:** ڈیزائن اور رنگ و روپ سنبھالتا ہے۔\n- **JavaScript & DOM:** صفحے کو متحرک بناتا ہے۔ \`addEventListener("click", ...)\` کے ذریعے یوزر کے کلک پر ردعمل ظاہر کیا جاتا ہے۔`;
+    }
+    if (language === "roman_ur") {
+      return `**Web Development & DOM:**\n\n- **HTML:** Webpage ka structure (tags like \`<header>\`, \`<button>\`).\n- **CSS:** Styling aur responsive layout.\n- **DOM Events:** JavaScript se button click par reaction: \`button.addEventListener("click", () => { ... })\`. Page refresh ke baghair state update hoti hai.`;
+    }
+    return `**Web Development & DOM Manipulation:**\n\n- **Semantic HTML:** Use landmarks like \`<main>\`, \`<nav>\`, and accessible \`<button>\` tags for screen-reader compatibility.\n- **CSS:** Flexbox and Grid deliver clean responsive layouts without hardcoded pixels.\n- **DOM Events:** \`element.addEventListener("click", handler)\` updates the user interface dynamically without full-page reloads.`;
+  }
+
+  // 9. Data Science / Pandas
+  if (lower.includes("data science") || lower.includes("pandas") || lower.includes("dataframe") || lower.includes("dataset") || lower.includes("machine learning")) {
+    if (language === "ur") {
+      return `**ڈیٹا سائنس اور پانڈاس (Pandas):**\n\n- پانڈاس ڈیٹا فریم (DataFrame) ایک سپرڈشیٹ یا ایکسل ٹیبل کی طرح ہوتا ہے جس میں قطاریں اور کالم ہوتے ہیں۔\n- \`df.head()\` شروع کی 5 قطاریں دکھاتا ہے اور \`df["column"].mean()\` اوسط نکالتا ہے۔\n- ٹرین اور ٹیسٹ اسپلٹ (80/20) اس بات کو یقینی بناتا ہے کہ ماڈل صرف یاد نہ کرے بلکہ نئی معلومات پر بھی صحیح کام کرے۔`;
+    }
+    if (language === "roman_ur") {
+      return `**Data Science & Pandas DataFrames:**\n\n- **DataFrame:** Programmable spreadsheet ki tarah 2D table hota hai.\n- **Common Methods:** \`df.head()\` pehli 5 rows dikhata hai, \`df.describe()\` statistical summary deta hai.\n- **Train/Test Split:** 80% data training ke liye aur 20% unseen test evaluation ke liye rakha jata hai taake overfitting na ho.`;
+    }
+    return `**Data Science & Pandas DataFrames:**\n\n- **DataFrames:** 2D labeled tabular data structures in Pandas (like an automated spreadsheet in code).\n- Use \`df.head()\` to preview top records, and \`df["score"].mean()\` to compute statistics.\n- **Generalization:** An 80/20 train/test split verifies whether machine learning models generalize to unseen data rather than memorizing training noise.`;
+  }
+
+  // 10. Errors, Debugging & Syntax
+  if (lower.includes("error") || lower.includes("bug") || lower.includes("indent") || lower.includes("syntax") || lower.includes("problem")) {
+    if (language === "ur") {
+      return `**عام پائتھون غلطیاں اور ان کا حل:**\n\n1. **IndentationError:** اگر کوڈ کی اسپیسنگ برابر نہ ہو (ہمیشہ 4 اسپیس استعمال کریں)۔\n2. **NameError:** اگر ویری ایبل کو پہلے ڈیفائن نہ کیا گیا ہو۔\n3. **TypeError:** جب مختلف اقسام کو غلط ملایا جائے، جیسے \`"5" + 3\`۔\n\nاپنا کوڈ یا ایرر میسج یہاں پیسٹ کریں، میں فوراً نشاندہی کر دوں گا!`;
+    }
+    if (language === "roman_ur") {
+      return `**Common Python Errors & Debugging:**\n\n1. **IndentationError:** Spaces ya tabs ka imbalance (hamesha 4 spaces rakhein).\n2. **NameError:** Variable define kiye baghair use karne par aata hai.\n3. **TypeError:** Numbers aur strings ko direct add karne par aata hai.\n\nAap apna error snippet yahan share karein, main step-by-step samjha doonga!`;
+    }
+    return `**Python Debugging & Common Errors:**\n\n1. **IndentationError:** Python requires consistent indentation (4 spaces per level) to define blocks.\n2. **NameError:** Occurs when referencing a variable or function before it has been defined or assigned.\n3. **TypeError:** Caused by illegal operations between mismatched types (e.g. \`"score: " + 100\` instead of \`f"score: {100}"\`).\n\nPaste your exact error message or code snippet here and I will walk you through the fix!`;
+  }
+
+  // 11. Personalized Contextual Fallback
   if (language === "ur") {
-    return `فہد، آپ کا سب سے اہم اگلا ہدف "${weakest?.nameUr}" (${weakest?.mastery}%) ہے۔ آپ صرف 10 یا 15 منٹ کا مائیکرو سیشن منتخب کر کے آہستہ آہستہ مہارت بڑھا سکتے ہیں۔`;
+    return `${name}، آپ کے سوال پر غور کریں تو آپ کا موجودہ ہدف "${weakestNameUr}" ہے۔ پائتھون میں کسی بھی مسئلے کو چھوٹے چھوٹے حصوں میں تقسیم کریں۔ آپ مجھ سے ویری ایبلز، لوپس، فنکشنز، ایررز، یا روزانہ کے 15 منٹ اسٹڈی پلان کے متعلق تفصیل سے پوچھ سکتے ہیں!`;
   }
   if (language === "roman_ur") {
-    return `Fahad, aapka next focus "${weakest?.name}" (${weakest?.mastery}%) hona chahiye. Study Planner mein 10 ya 15 min slot chunein aur Socratic hints ke saath practice karein.`;
+    return `${name}, aapka current focus topic "${weakestName}" hai. Coding seekhne ka behtareen tareeqa hai chote chote code snippets likhna aur execute karna. Aap mujhse loops, functions, variables, ya debugging ke bare mein mazeed poochein!`;
   }
-  return `Your highest-impact focus right now is **${weakest?.name}** (${weakest?.mastery}%). What part of ${weakest?.name} feels trickiest—syntax, boundaries, or tracing output? Tell me and I'll walk you through a tiny 1-line check.`;
+  return `${name}, your current learning focus is **${weakestName}**. A great way to master it is breaking complex logic into 1-line mental checks. Feel free to ask me to explain any concept, write code examples, or trace through tricky Python syntax!`;
 }
 
 export function generateRuleBasedDrafts(

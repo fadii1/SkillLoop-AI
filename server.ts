@@ -120,6 +120,30 @@ function getAiClient(): GoogleGenAI | null {
   });
 }
 
+const CANDIDATE_GEMINI_MODELS = [
+  process.env.GEMINI_MODEL,
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-2.5-flash",
+  "gemini-3.8-flash",
+].filter(Boolean) as string[];
+
+async function callGeminiWithFallback(ai: GoogleGenAI, requestParams: Record<string, unknown>) {
+  let lastError: unknown = null;
+  for (const model of CANDIDATE_GEMINI_MODELS) {
+    try {
+      return await ai.models.generateContent({
+        ...requestParams,
+        model,
+      } as any);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Gemini model ${model} failed, trying next fallback:`, (err as Error)?.message || err);
+    }
+  }
+  throw lastError;
+}
+
 function getLanguageInstruction(language: string): string {
   if (language === "ur") {
     return "Respond entirely in natural, polite Urdu script (اردو) while keeping Python/JavaScript code identifiers in English monospace.";
@@ -142,7 +166,7 @@ function parseGeminiJson<T>(rawText: string | undefined, fallback: T): T {
 
 async function startServer() {
   const app = express();
-  app.use(express.json({ limit: "1mb" }));
+  app.use(express.json({ limit: "10mb" }));
 
   // Health check
   app.get("/api/health", (_req, res) => {
@@ -433,7 +457,7 @@ async function startServer() {
     requireAuth,
     async (req: AuthenticatedRequest, res) => {
       try {
-        const { preferred_language, accessibility_prefs, last_active_at } =
+        const { preferred_language, accessibility_prefs, last_active_at, avatar } =
           req.body ?? {};
 
         const updated = await updateUserPreferences(req.auth!.sub, {
@@ -458,6 +482,7 @@ async function startServer() {
             typeof last_active_at === "string"
               ? new Date(last_active_at)
               : undefined,
+          avatar: typeof avatar === "string" && avatar.trim().length > 0 ? avatar.trim() : undefined,
         });
 
         if (!updated) {
@@ -470,6 +495,30 @@ async function startServer() {
           error instanceof Error
             ? error.message
             : "Unable to update preferences.";
+        return res.status(500).json({ error: msg });
+      }
+    }
+  );
+
+  app.post(
+    "/api/auth/avatar",
+    requireAuth,
+    async (req: AuthenticatedRequest, res) => {
+      try {
+        const { avatar } = req.body ?? {};
+        if (!avatar || typeof avatar !== "string" || !avatar.trim()) {
+          return res.status(400).json({ error: "Avatar image data is required." });
+        }
+        const updated = await updateUserPreferences(req.auth!.sub, {
+          avatar: avatar.trim(),
+        });
+        if (!updated) {
+          return res.status(404).json({ error: "User not found." });
+        }
+        return res.json({ ok: true, user: toPublicUser(updated) });
+      } catch (error) {
+        const msg =
+          error instanceof Error ? error.message : "Unable to update avatar.";
         return res.status(500).json({ error: msg });
       }
     }
@@ -620,8 +669,7 @@ Provide:
 5. followUpOptions: Array of exactly 3 short answer choices.
 6. followUpAnswer: Exact string matching one of followUpOptions.`;
 
-        const response = await ai.models.generateContent({
-          model: "gemini-4-hydrogen",
+        const response = await callGeminiWithFallback(ai, {
           contents: prompt,
           config: {
             thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
@@ -701,8 +749,7 @@ Provide:
             .join(", ")
           : "";
 
-        const response = await ai.models.generateContent({
-          model: "gemini-4-hydrogen",
+        const response = await callGeminiWithFallback(ai, {
           contents: `Learner message: ${message}`,
           config: {
             thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
@@ -761,8 +808,7 @@ Topic: ${topicName}
 Notes:
 ${notes}`;
 
-        const response = await ai.models.generateContent({
-          model: "gemini-4-hydrogen",
+        const response = await callGeminiWithFallback(ai, {
           contents: prompt,
           config: {
             thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },

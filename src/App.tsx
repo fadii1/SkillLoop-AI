@@ -22,6 +22,8 @@ import {
   MasteryRepo,
   QuestionRepo,
   StudyPlanRepo,
+  WorkspaceRepo,
+  clearUserData,
 } from "./db/repository";
 import { speakText, stopSpeaking } from "./utils/speech";
 import {
@@ -50,6 +52,21 @@ import {
   SettingsView,
 } from "./components/SecondaryViews";
 
+export function computeOverallProgress(courseList: Course[]): number {
+  let totalLessons = 0;
+  let completedLessons = 0;
+  for (const c of courseList) {
+    const modulesCount = c.modules?.length || c.totalLessons || 0;
+    const completedCount =
+      c.modules?.filter((m) => m.completed).length ?? c.completedLessons ?? 0;
+    totalLessons += modulesCount;
+    completedLessons += completedCount;
+  }
+  return totalLessons > 0
+    ? Math.round((completedLessons / totalLessons) * 100)
+    : 0;
+}
+
 export default function App() {
   const currentPath =
     typeof window !== "undefined"
@@ -57,7 +74,7 @@ export default function App() {
       : "/";
   const isAuthEntry = currentPath === "/" || currentPath === "/login";
 
-  // When opening the web app (root "/" or "/login"), always start on the Sign In page
+  // When opening the web app (root "/" or "/login"), always start on the Sign In page first
   const initialSession = isAuthEntry ? null : AuthRepo.getSession();
   const initialEval = evaluateRouteAccess(
     isAuthEntry ? "/login" : currentPath,
@@ -106,9 +123,9 @@ export default function App() {
   );
 
   const initialMetrics = AppStateRepo.getMetrics();
-  const [overallProgress, setOverallProgress] = useState(
-    initialMetrics.overallProgress
-  );
+  const [overallProgress, setOverallProgress] = useState<number>(() => {
+    return computeOverallProgress(CourseRepo.getAll());
+  });
   const [quizAccuracy, setQuizAccuracy] = useState(initialMetrics.quizAccuracy);
   const [studyMinutesTotal, setStudyMinutesTotal] = useState(
     initialMetrics.studyMinutesTotal
@@ -193,10 +210,11 @@ export default function App() {
         ? normalizePathname(window.location.pathname)
         : "/";
     if (rawPath === "/" || rawPath === "/login") {
-      // Opening the web app or login route: stay on the Sign In page
+      // Opening the server link or login route: stay on the Sign In page
       return;
     }
-    void AuthRepo.verifySessionOnServer().then((verifiedUser) => {
+    if (!AuthRepo.getSession()) return;
+    void AuthRepo.verifySessionOnServer().then(async (verifiedUser) => {
       if (!verifiedUser) {
         setCurrentUser(null);
       } else {
@@ -205,6 +223,22 @@ export default function App() {
         setRole((prev) =>
           permitted.includes(prev) ? prev : verifiedUser.role
         );
+        const serverWorkspace = await WorkspaceRepo.loadFromServer();
+        if (serverWorkspace) {
+          if (serverWorkspace.courses) {
+            setCourses(serverWorkspace.courses);
+            setOverallProgress(computeOverallProgress(serverWorkspace.courses));
+          }
+          if (serverWorkspace.topics) setTopics(serverWorkspace.topics);
+          if (serverWorkspace.activities) setActivities(serverWorkspace.activities);
+          if (serverWorkspace.metrics) {
+            setQuizAccuracy(serverWorkspace.metrics.quizAccuracy);
+            setStudyMinutesTotal(serverWorkspace.metrics.studyMinutesTotal);
+          }
+          if (serverWorkspace.feedback) setFeedbackHistory(serverWorkspace.feedback);
+          if (serverWorkspace.drafts) setEducatorDrafts(serverWorkspace.drafts);
+          if (serverWorkspace.recoveryLogs) setAdminLogs(serverWorkspace.recoveryLogs);
+        }
       }
     });
   }, []);
@@ -262,7 +296,63 @@ export default function App() {
     StudyPlanRepo.saveRecoveryLogs(adminLogs);
   }, [adminLogs]);
 
-  const handleAuthenticated = (user: UserRecord) => {
+  // Auto-sync workspace to PostgreSQL database when state changes
+  useEffect(() => {
+    if (!currentUser) return;
+    const timer = setTimeout(() => {
+      void WorkspaceRepo.saveToServer({
+        courses,
+        topics,
+        activities,
+        feedback: feedbackHistory,
+        metrics: {
+          overallProgress,
+          quizAccuracy,
+          studyMinutesTotal,
+        },
+        drafts: educatorDrafts,
+        recoveryLogs: adminLogs,
+      });
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [
+    currentUser?.id,
+    courses,
+    topics,
+    activities,
+    feedbackHistory,
+    overallProgress,
+    quizAccuracy,
+    studyMinutesTotal,
+    educatorDrafts,
+    adminLogs,
+  ]);
+
+  const handleAuthenticated = async (user: UserRecord) => {
+    // Attempt to load existing user workspace from PostgreSQL database
+    const serverWorkspace = await WorkspaceRepo.loadFromServer();
+
+    const freshCourses = serverWorkspace?.courses || CourseRepo.getAll();
+    const freshTopics = serverWorkspace?.topics || MasteryRepo.getTopics();
+    const freshActivities = serverWorkspace?.activities || AppStateRepo.getActivities();
+    const freshMetrics = serverWorkspace?.metrics || AppStateRepo.getMetrics();
+    const freshFeedback = serverWorkspace?.feedback || AppStateRepo.getFeedback();
+    const freshDrafts = serverWorkspace?.drafts || AppStateRepo.getDrafts();
+    const freshLogs = serverWorkspace?.recoveryLogs || StudyPlanRepo.getRecoveryLogs();
+
+    setCourses(freshCourses);
+    setTopics(freshTopics);
+    setActivities(freshActivities);
+    setOverallProgress(
+      serverWorkspace?.metrics?.overallProgress ??
+        computeOverallProgress(freshCourses)
+    );
+    setQuizAccuracy(freshMetrics.quizAccuracy || 0);
+    setStudyMinutesTotal(freshMetrics.studyMinutesTotal || 0);
+    setFeedbackHistory(freshFeedback);
+    setEducatorDrafts(freshDrafts);
+    setAdminLogs(freshLogs);
+
     setCurrentUser(user);
     setRole(user.role);
     setEducatorSubTab("generator");
@@ -278,9 +368,24 @@ export default function App() {
   const handleLogout = () => {
     stopSpeaking();
     AuthRepo.logout();
+    clearUserData();
+    setCourses(CourseRepo.getAll());
+    setTopics(MasteryRepo.getTopics());
+    setActivities([]);
+    setOverallProgress(0);
+    setQuizAccuracy(0);
+    setStudyMinutesTotal(0);
+    setFeedbackHistory([]);
     setCurrentUser(null);
     setRouteNotice(null);
     window.history.replaceState(null, "", "/login");
+  };
+
+  const handleUpdateAvatar = async (dataUrl: string) => {
+    const updated = await AuthRepo.updateAvatar(dataUrl);
+    if (updated) {
+      setCurrentUser(updated);
+    }
   };
 
   if (!currentUser) {
@@ -393,25 +498,59 @@ export default function App() {
   };
 
   const handleCompleteLesson = (courseId: string, moduleId: string) => {
-    setCourses((prev) =>
-      prev.map((c) => {
+    setCourses((prev) => {
+      let toggledTitle = "";
+      let isCompletedNow = false;
+      const nextCourses = prev.map((c) => {
         if (c.id !== courseId) return c;
-        const updatedModules = c.modules.map((m) =>
-          m.id === moduleId ? { ...m, completed: !m.completed } : m
-        );
+        const updatedModules = c.modules.map((m) => {
+          if (m.id === moduleId) {
+            toggledTitle = m.title;
+            isCompletedNow = !m.completed;
+            return { ...m, completed: !m.completed };
+          }
+          return m;
+        });
         const completedCount = updatedModules.filter((m) => m.completed).length;
-        const ratio = Math.round(
-          (completedCount / Math.max(updatedModules.length, 1)) * 100
-        );
+        const total = updatedModules.length || c.totalLessons || 1;
+        const ratio = Math.round((completedCount / total) * 100);
+        const statusVal: "Completed" | "In Progress" | "Not Started" =
+          ratio === 100
+            ? "Completed"
+            : ratio > 0
+            ? "In Progress"
+            : "Not Started";
         return {
           ...c,
           modules: updatedModules,
           completedLessons: completedCount,
-          status: ratio > 0 ? "In Progress" : "Not Started",
-          progress: c.id === "python-101" ? Math.max(68, ratio) : ratio,
+          totalLessons: updatedModules.length,
+          status: statusVal,
+          progress: ratio,
         };
-      })
-    );
+      });
+
+      const nextOverall = computeOverallProgress(nextCourses as Course[]);
+      setOverallProgress(nextOverall);
+
+      if (isCompletedNow && toggledTitle) {
+        const courseTitle =
+          prev.find((c) => c.id === courseId)?.title || "Course";
+        setActivities((actPrev) => [
+          {
+            id: `act-lesson-${Date.now()}`,
+            title: `Completed ${toggledTitle}`,
+            meta: `${courseTitle} · Lesson Completed`,
+            score: "+Progress",
+            timeAgo: "Just now",
+            type: "concept",
+          },
+          ...actPrev,
+        ]);
+      }
+
+      return nextCourses;
+    });
   };
 
   const handleApplyRecoveryPlan = (gaps: string[]) => {
@@ -431,7 +570,7 @@ export default function App() {
       {
         id: `act-rec-${Date.now()}`,
         title: "5-Day Absence Recovery Completed",
-        meta: `68% progress preserved · 10-min catch-up for ${gaps.join(" & ")}`,
+        meta: `${gaps.join(" & ")} recovery · 10-min catch-up plan`,
         score: "Zero Penalty",
         timeAgo: "Just now",
         type: "recovery",
@@ -445,7 +584,7 @@ export default function App() {
         event: "Learner Completed Absence Recovery Diagnostic",
         component: "Adaptive Recovery Engine",
         severity: "Resolved",
-        detail: `Preserved 68% Python progress; saved 10-min catch-up plan for ${gaps.join(
+        detail: `Absence recovery completed; saved 10-min catch-up plan for ${gaps.join(
           ", "
         )}.`,
       },
@@ -498,6 +637,7 @@ export default function App() {
             allowedRoles={allowedRoles}
             onRoleChange={handleRoleChange}
             onLogout={handleLogout}
+            onUpdateAvatar={handleUpdateAvatar}
             courses={courses}
             topics={topics}
             onSelectCourse={(courseId) => {
@@ -631,6 +771,8 @@ export default function App() {
             />
           ) : (
             <SettingsView
+              currentUser={currentUser}
+              onUpdateAvatar={handleUpdateAvatar}
               largerText={largerText}
               onToggleLargerText={() => setLargerText((p) => !p)}
               highContrast={highContrast}

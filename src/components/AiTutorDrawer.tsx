@@ -27,6 +27,98 @@ const QUICK_PROMPTS = [
   "What should I study in 10 minutes?",
 ];
 
+const FormattedMessage: React.FC<{ text: string; isUser: boolean }> = ({
+  text,
+  isUser,
+}) => {
+  if (isUser) {
+    return <p className="whitespace-pre-wrap">{text}</p>;
+  }
+
+  // Parse code blocks ``` ... ```
+  const parts = text.split(/(```[\s\S]*?```)/g);
+
+  return (
+    <div className="space-y-2 text-xs sm:text-sm leading-relaxed">
+      {parts.map((part, pIdx) => {
+        if (part.startsWith("```") && part.endsWith("```")) {
+          const raw = part.slice(3, -3).trim();
+          const lines = raw.split("\n");
+          const firstLine = lines[0].trim().toLowerCase();
+          const codeLines = [
+            "python",
+            "py",
+            "js",
+            "javascript",
+            "html",
+            "css",
+            "sql",
+          ].includes(firstLine)
+            ? lines.slice(1).join("\n")
+            : lines.join("\n");
+          return (
+            <pre
+              key={pIdx}
+              className="my-2 overflow-x-auto rounded-xl bg-slate-900 p-3 font-mono text-[11px] sm:text-xs text-emerald-300 shadow-xs"
+            >
+              <code>{codeLines}</code>
+            </pre>
+          );
+        }
+
+        const lines = part.split("\n");
+        return (
+          <div key={pIdx} className="space-y-1">
+            {lines.map((line, lIdx) => {
+              const trimmed = line.trim();
+              if (!trimmed) return <div key={lIdx} className="h-1.5" />;
+
+              const isBullet =
+                trimmed.startsWith("- ") || trimmed.startsWith("* ");
+              const content = isBullet ? trimmed.slice(2) : line;
+
+              // Render inline formatting: **bold** and `code`
+              const inlineParts = content.split(/(\*\*.*?\*\*|`.*?`)/g);
+
+              const renderedInline = inlineParts.map((ip, iIdx) => {
+                if (ip.startsWith("**") && ip.endsWith("**")) {
+                  return (
+                    <strong key={iIdx} className="font-bold text-slate-900">
+                      {ip.slice(2, -2)}
+                    </strong>
+                  );
+                }
+                if (ip.startsWith("`") && ip.endsWith("`")) {
+                  return (
+                    <code
+                      key={iIdx}
+                      className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-indigo-700"
+                    >
+                      {ip.slice(1, -1)}
+                    </code>
+                  );
+                }
+                return ip;
+              });
+
+              if (isBullet) {
+                return (
+                  <div key={lIdx} className="flex items-start gap-2 pl-1">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-600" />
+                    <span>{renderedInline}</span>
+                  </div>
+                );
+              }
+
+              return <p key={lIdx}>{renderedInline}</p>;
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
   isOpen,
   onClose,
@@ -36,11 +128,11 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
   offlineFallbackOnly,
   onSpeakText,
 }) => {
-  const [messages, setMessages] = useState<TutorMessage[]>([
+  const [messages, setMessages] = useState<TutorMessage[]>(() => [
     {
       id: "m-welcome",
       sender: "assistant",
-      text: `Hi ${learnerName.split(" ")[0]}! I see your Variables mastery is 90%, while Functions (30%) and Loops (45%) are your best opportunities tonight. What can I break down with a quick Socratic hint?`,
+      text: `Hi ${learnerName.split(" ")[0]}! I am your SkillLoop study assistant. How can I help you today? Ask me about Python concepts, variables, loops, functions, debugging, or your study plan!`,
       source: "rule-based",
       timestamp: "Now",
     },
@@ -104,7 +196,7 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
     }
 
     if (!replyText) {
-      replyText = generateRuleBasedTutorReply(trimmed, language, topics);
+      replyText = generateRuleBasedTutorReply(trimmed, language, topics, learnerName);
       source = "rule-based";
     }
 
@@ -184,7 +276,7 @@ export const AiTutorDrawer: React.FC<AiTutorDrawerProps> = ({
                     : "border border-slate-200 bg-slate-50 text-slate-800"
                 }`}
               >
-                <p className="whitespace-pre-wrap">{msg.text}</p>
+                <FormattedMessage text={msg.text} isUser={msg.sender === "user"} />
               </div>
               <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-400">
                 <span>{msg.timestamp}</span>

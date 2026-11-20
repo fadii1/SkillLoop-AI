@@ -379,6 +379,7 @@ export async function updateUserPreferences(
     preferredLanguage?: Language;
     accessibilityPrefs?: AccessibilityPrefsRecord;
     lastActiveAt?: Date;
+    avatar?: string;
   }
 ): Promise<UserRow | null> {
   try {
@@ -392,6 +393,9 @@ export async function updateUserPreferences(
     if (patch.lastActiveAt) {
       updateValues.lastActiveAt = patch.lastActiveAt;
     }
+    if (patch.avatar) {
+      updateValues.avatar = patch.avatar;
+    }
 
     if (Object.keys(updateValues).length === 0) {
       return findUserByUid(uid);
@@ -402,6 +406,10 @@ export async function updateUserPreferences(
       .set(updateValues)
       .where(eq(users.uid, uid))
       .returning();
+
+    if (updated[0] && FALLBACK_USERS[uid]) {
+      FALLBACK_USERS[uid] = updated[0];
+    }
     return updated[0] || null;
   } catch (error) {
     console.error("Database query failed (updateUserPreferences):", error);
@@ -547,6 +555,39 @@ export async function createVerifiedEmailUser(params: {
 }): Promise<UserRow> {
   const cleanEmail = params.email.trim().toLowerCase();
   const now = new Date();
+  await deletePendingSignupByEmail(cleanEmail);
+
+  try {
+    const inserted = await db
+      .insert(users)
+      .values({
+        uid: params.uid,
+        name: params.name,
+        email: cleanEmail,
+        passwordHash: params.passwordHash,
+        role: params.role,
+        avatar: DEFAULT_AVATAR,
+        emailVerified: true,
+        preferredLanguage: "en",
+        accessibilityPrefs: {
+          fontSize: "normal",
+          highContrast: false,
+          ttsEnabled: true,
+        },
+        streakDays: 1,
+        lastActiveAt: now,
+        createdAt: now,
+      })
+      .returning();
+
+    if (inserted && inserted[0]) {
+      FALLBACK_USERS[params.uid] = inserted[0];
+      return inserted[0];
+    }
+  } catch (error) {
+    console.error("Database query failed (createVerifiedEmailUser):", error);
+  }
+
   const fallbackUser: UserRow = {
     id: Object.keys(FALLBACK_USERS).length + 1,
     uid: params.uid,
@@ -567,18 +608,7 @@ export async function createVerifiedEmailUser(params: {
     createdAt: now,
   };
   FALLBACK_USERS[params.uid] = fallbackUser;
-  await deletePendingSignupByEmail(cleanEmail);
-
-  try {
-    const inserted = await db
-      .insert(users)
-      .values(fallbackUser)
-      .returning();
-    return inserted[0] || fallbackUser;
-  } catch (error) {
-    console.warn("Database query failed (createVerifiedEmailUser), saved in fallback store");
-    return fallbackUser;
-  }
+  return fallbackUser;
 }
 
 export async function getWorkspaceForUser(

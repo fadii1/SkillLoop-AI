@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ArrowRight,
   CalendarClock,
+  Camera,
   Captions,
   CheckCircle2,
   Clock,
+  Loader2,
   MessageSquareText,
   Play,
   Settings as SettingsIcon,
   Sparkles,
   TrendingUp,
+  Upload,
   Volume2,
 } from "lucide-react";
 import {
@@ -26,8 +29,10 @@ import {
   Course,
   LanguageCode,
   TopicMastery,
+  UserRecord,
 } from "../types";
-import { WEEKLY_PROGRESS_CHART, buildMicroSession } from "../data/seedData";
+import { ASSETS, WEEKLY_PROGRESS_CHART, buildMicroSession } from "../data/seedData";
+import { readImageAsAvatar } from "../utils/image";
 
 /* ---------------- MY COURSES VIEW ---------------- */
 interface CoursesViewProps {
@@ -587,6 +592,8 @@ export const ResourcesView: React.FC<{
 
 /* ---------------- SETTINGS VIEW ---------------- */
 export const SettingsView: React.FC<{
+  currentUser?: UserRecord | null;
+  onUpdateAvatar?: (dataUrl: string) => Promise<void> | void;
   largerText: boolean;
   onToggleLargerText: () => void;
   highContrast: boolean;
@@ -599,6 +606,8 @@ export const SettingsView: React.FC<{
   onToggleOfflineMode: () => void;
   onOpenRecoveryModal: () => void;
 }> = ({
+  currentUser,
+  onUpdateAvatar,
   largerText,
   onToggleLargerText,
   highContrast,
@@ -611,6 +620,30 @@ export const SettingsView: React.FC<{
   onToggleOfflineMode,
   onOpenRecoveryModal,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUpdateAvatar) return;
+    try {
+      setUploading(true);
+      setStatusMsg(null);
+      const dataUrl = await readImageAsAvatar(file);
+      await onUpdateAvatar(dataUrl);
+      setStatusMsg("Profile picture updated and saved to database!");
+      setTimeout(() => setStatusMsg(null), 4000);
+    } catch (err) {
+      console.error("Avatar change error:", err);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2.5">
@@ -618,6 +651,87 @@ export const SettingsView: React.FC<{
         <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
           Settings
         </h1>
+      </div>
+
+      {/* Profile & Avatar Section */}
+      <div className="hc-card rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <div className="relative group shrink-0">
+            <img
+              src={currentUser?.avatar || ASSETS.fahadAvatar}
+              alt={currentUser?.name || "Profile Picture"}
+              onError={(e) => {
+                e.currentTarget.src = ASSETS.fahadAvatar;
+              }}
+              className="h-20 w-20 rounded-full object-cover border-2 border-indigo-200 shadow-sm"
+            />
+            {onUpdateAvatar && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                title="Change Photo"
+                aria-label="Upload photo"
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/60 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                {uploading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-white" />
+                ) : (
+                  <Camera className="h-6 w-6 text-white" />
+                )}
+              </button>
+            )}
+            <span
+              onClick={() => fileInputRef.current?.click()}
+              title="Change Photo"
+              className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-white ring-2 ring-white shadow-xs cursor-pointer hover:bg-indigo-700 transition-colors"
+            >
+              <Camera className="h-3.5 w-3.5" />
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+
+          <div className="flex-1 text-center sm:text-left space-y-1">
+            <h2 className="text-lg font-bold text-slate-900">
+              {currentUser?.name || "Your Profile"}
+            </h2>
+            <p className="text-xs text-slate-500 font-medium">
+              {currentUser?.email} · <span className="capitalize">{currentUser?.role || "Learner"}</span>
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+              <button
+                type="button"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-indigo-700 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-3.5 w-3.5" />
+                    <span>Change Photo</span>
+                  </>
+                )}
+              </button>
+              {statusMsg && (
+                <span className="text-xs font-semibold text-emerald-600">
+                  ✓ {statusMsg}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">

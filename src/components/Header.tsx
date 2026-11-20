@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Camera,
+  Loader2,
   LogOut,
   Menu,
   Search,
@@ -15,6 +17,7 @@ import {
 } from "../types";
 import { TranslationSet } from "../data/translations";
 import { ASSETS } from "../data/seedData";
+import { readImageAsAvatar } from "../utils/image";
 
 interface HeaderProps {
   currentUser: UserRecord;
@@ -22,6 +25,7 @@ interface HeaderProps {
   allowedRoles: UserRole[];
   onRoleChange: (role: UserRole) => void;
   onLogout: () => void;
+  onUpdateAvatar?: (dataUrl: string) => Promise<void> | void;
   courses: Course[];
   topics: TopicMastery[];
   onSelectCourse: (courseId: string) => void;
@@ -36,6 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
   allowedRoles,
   onRoleChange,
   onLogout,
+  onUpdateAvatar,
   courses,
   topics,
   onSelectCourse,
@@ -46,6 +51,25 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleAvatarFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUpdateAvatar) return;
+    try {
+      setUploadingAvatar(true);
+      const dataUrl = await readImageAsAvatar(file);
+      await onUpdateAvatar(dataUrl);
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = "";
+      }
+    }
+  };
 
   const canSwitchRoles = allowedRoles.length > 1;
   const canAccessLearner = allowedRoles.includes("learner");
@@ -222,14 +246,51 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         <div className="flex items-center gap-2.5">
-          <img
-            src={currentUser.avatar || ASSETS.fahadAvatar}
-            alt={`${currentUser.name || "Learner"} profile avatar`}
-            width={32}
-            height={32}
-            referrerPolicy="no-referrer"
-            className="h-8 w-8 rounded-full object-cover border border-slate-200"
-          />
+          <div className="relative group">
+            <img
+              src={currentUser.avatar || ASSETS.fahadAvatar}
+              alt={`${currentUser.name || "Learner"} profile avatar`}
+              width={36}
+              height={36}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.src = ASSETS.fahadAvatar;
+              }}
+              className="h-9 w-9 rounded-full object-cover border-2 border-indigo-200/80 shadow-xs transition-transform group-hover:scale-105"
+            />
+            {onUpdateAvatar && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  title="Change profile picture (Select from gallery)"
+                  aria-label="Change profile picture"
+                  className="absolute inset-0 flex items-center justify-center rounded-full bg-slate-900/60 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  {uploadingAvatar ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-white" />
+                  ) : (
+                    <Camera className="h-4 w-4 text-white" />
+                  )}
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarFile}
+                />
+              </>
+            )}
+            <span
+              onClick={() => avatarInputRef.current?.click()}
+              title="Change profile picture"
+              className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-600 text-white ring-2 ring-white shadow-xs cursor-pointer hover:bg-indigo-700 transition-colors"
+            >
+              <Camera className="h-2.5 w-2.5" />
+            </span>
+          </div>
           <div className="hidden md:block leading-tight">
             <div className="text-xs font-bold text-slate-900 whitespace-nowrap max-w-[130px] truncate">
               {currentUser.name}

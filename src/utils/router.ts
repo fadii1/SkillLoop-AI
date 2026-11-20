@@ -121,7 +121,7 @@ export function evaluateRouteAccess(
   const allowedPortals = getAllowedRolesForUser(userRole);
   const fallbackPath = getDefaultPathForRole(userRole);
 
-  // 2. Visiting / or /login -> show Sign In page
+  // 2. Visiting / or /login -> always land on Sign In page first
   if (path === "/" || path === "/login") {
     return {
       isAuthenticatedRoute: false,

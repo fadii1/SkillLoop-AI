@@ -44,6 +44,48 @@ const KEYS = {
 // Firebase ID tokens are kept strictly in memory (never persisted to localStorage)
 let inMemoryFirebaseToken: string | null = null;
 
+/** Resets all user-specific app data to a clean blank slate in localStorage.
+ *  Called on every login/signup so a new account never sees another user's data.
+ *  We write explicit zero/empty values so readJson() never falls back to seeded dummy data. */
+export function clearUserData(): void {
+  if (typeof window === "undefined") return;
+
+  // Reset courses to catalog but with all progress zeroed out
+  const freshCourses = INITIAL_COURSES.map((c) => ({
+    ...c,
+    progress: 0,
+    completedLessons: 0,
+    status: "Not Started" as const,
+    modules: c.modules?.map((m) => ({ ...m, completed: false })) ?? [],
+  }));
+  writeJson(KEYS.COURSES, freshCourses);
+
+  // Topics with 0% initial mastery
+  const freshTopics = INITIAL_TOPIC_MASTERY.map((t) => ({
+    ...t,
+    mastery: 0,
+    retention_health: "Needs Review" as const,
+    lastPracticedDaysAgo: 0,
+  }));
+  writeJson(KEYS.MASTERY, freshTopics);
+
+  // Everything else starts completely empty
+  writeJson(KEYS.ATTEMPTS, []);
+  writeJson(KEYS.RECOVERY_LOGS, []);
+  writeJson(KEYS.DRAFTS, []);
+  writeJson(KEYS.ACTIVITIES, []);
+  writeJson(KEYS.FEEDBACK, []);
+  writeJson(KEYS.METRICS, { overallProgress: 0, quizAccuracy: 0, studyMinutesTotal: 0 });
+  writeJson(KEYS.STUDY_PLAN, {
+    selectedMinutes: 15,
+    isRecoveryMode: false,
+    completedStepIds: [],
+    updatedAt: new Date().toISOString(),
+  });
+  window.localStorage.removeItem(KEYS.AUTO_SAVED_QUIZ);
+  window.localStorage.removeItem(KEYS.QUESTIONS);
+}
+
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -160,6 +202,7 @@ export const AuthRepo = {
             getHttpFallbackError(res, "Unable to verify Google account."),
         };
       }
+      clearUserData();
       writeJson(KEYS.SESSION, data.user);
       return { user: data.user as UserRecord };
     } catch (err) {
@@ -191,6 +234,7 @@ export const AuthRepo = {
         };
       }
       inMemoryFirebaseToken = null;
+      clearUserData();
       setAuthToken(String(data.token ?? ""));
       writeJson(KEYS.SESSION, data.user);
       return { user: data.user as UserRecord };
@@ -279,6 +323,7 @@ export const AuthRepo = {
         };
       }
       inMemoryFirebaseToken = null;
+      clearUserData();
       setAuthToken(String(data.token ?? ""));
       writeJson(KEYS.SESSION, data.user);
       return { user: data.user as UserRecord };
@@ -311,6 +356,7 @@ export const AuthRepo = {
         };
       }
       inMemoryFirebaseToken = null;
+      clearUserData();
       setAuthToken(String(data.token ?? ""));
       writeJson(KEYS.SESSION, data.user);
       return { user: data.user as UserRecord };
@@ -340,10 +386,42 @@ export const AuthRepo = {
           preferred_language: updated.preferred_language,
           accessibility_prefs: updated.accessibility_prefs,
           last_active_at: updated.last_active_at,
+          avatar: updated.avatar,
         }),
       }).catch(() => {});
     }
 
+    return updated;
+  },
+
+  async updateAvatar(avatarDataUrl: string): Promise<UserRecord | null> {
+    const current = this.getSession();
+    if (!current) return null;
+    const updated: UserRecord = { ...current, avatar: avatarDataUrl };
+    writeJson(KEYS.SESSION, updated);
+
+    const token = getAuthToken();
+    if (token) {
+      try {
+        const res = await fetch("/api/auth/avatar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ avatar: avatarDataUrl }),
+        });
+        if (res.ok) {
+          const data = await parseApiJson(res);
+          if (data?.user) {
+            writeJson(KEYS.SESSION, data.user);
+            return data.user as UserRecord;
+          }
+        }
+      } catch {
+        // Cached locally if offline
+      }
+    }
     return updated;
   },
 
@@ -355,6 +433,7 @@ export const AuthRepo = {
     }
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(KEYS.SESSION);
+      clearUserData();
     }
   },
 };
@@ -362,7 +441,27 @@ export const AuthRepo = {
 // 2. Courses & Lessons Repository
 export const CourseRepo = {
   getAll(): Course[] {
-    return readJson<Course[]>(KEYS.COURSES, INITIAL_COURSES);
+    const saved = readJson<Course[]>(KEYS.COURSES, INITIAL_COURSES);
+    // Merge new courses or modules seamlessly if local cache is from an older version
+    if (!saved || saved.length < INITIAL_COURSES.length) {
+      const merged = INITIAL_COURSES.map((init) => {
+        const found = saved?.find((s) => s.id === init.id);
+        if (!found) return init;
+        return {
+          ...init,
+          progress: found.progress ?? 0,
+          status: found.status ?? "Not Started",
+          completedLessons: found.completedLessons ?? 0,
+          modules: init.modules.map((m) => {
+            const savedMod = found.modules?.find((sm) => sm.id === m.id);
+            return savedMod ? { ...m, completed: savedMod.completed } : m;
+          }),
+        };
+      });
+      writeJson(KEYS.COURSES, merged);
+      return merged;
+    }
+    return saved;
   },
   saveAll(courses: Course[]): void {
     writeJson(KEYS.COURSES, courses);
@@ -413,7 +512,16 @@ export const QuestionRepo = {
 // 4. Mastery Records & Quiz Attempts Repository
 export const MasteryRepo = {
   getTopics(): TopicMastery[] {
-    return readJson<TopicMastery[]>(KEYS.MASTERY, INITIAL_TOPIC_MASTERY);
+    const saved = readJson<TopicMastery[]>(KEYS.MASTERY, INITIAL_TOPIC_MASTERY);
+    if (!saved || saved.length < INITIAL_TOPIC_MASTERY.length) {
+      const merged = INITIAL_TOPIC_MASTERY.map((init) => {
+        const found = saved?.find((s) => s.id === init.id);
+        return found ? { ...init, ...found } : init;
+      });
+      writeJson(KEYS.MASTERY, merged);
+      return merged;
+    }
+    return saved;
   },
   saveTopics(topics: TopicMastery[]): void {
     writeJson(KEYS.MASTERY, topics);
@@ -500,9 +608,9 @@ export const AppStateRepo = {
     studyMinutesTotal: number;
   } {
     return readJson(KEYS.METRICS, {
-      overallProgress: 76,
-      quizAccuracy: 82,
-      studyMinutesTotal: 405,
+      overallProgress: 0,
+      quizAccuracy: 0,
+      studyMinutesTotal: 0,
     });
   },
   saveMetrics(metrics: {
@@ -513,3 +621,83 @@ export const AppStateRepo = {
     writeJson(KEYS.METRICS, metrics);
   },
 };
+
+export interface UserWorkspaceData {
+  courses?: Course[];
+  topics?: TopicMastery[];
+  activities?: ActivityItem[];
+  feedback?: ConceptualFeedback[];
+  metrics?: {
+    overallProgress: number;
+    quizAccuracy: number;
+    studyMinutesTotal: number;
+  };
+  drafts?: EducatorDraftItem[];
+  recoveryLogs?: RecoveryLogEntry[];
+}
+
+// 7. Cloud SQL / PostgreSQL User Workspace Repository
+export const WorkspaceRepo = {
+  async loadFromServer(): Promise<UserWorkspaceData | null> {
+    const token = getAuthToken();
+    if (!token) return null;
+    try {
+      const res = await fetch("/api/workspace", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return null;
+      const data = await parseApiJson(res);
+      if (
+        data?.workspace &&
+        typeof data.workspace === "object" &&
+        !Array.isArray(data.workspace)
+      ) {
+        const ws = data.workspace as UserWorkspaceData;
+        if (ws.courses && Array.isArray(ws.courses)) {
+          writeJson(KEYS.COURSES, ws.courses);
+        }
+        if (ws.topics && Array.isArray(ws.topics)) {
+          writeJson(KEYS.MASTERY, ws.topics);
+        }
+        if (ws.activities && Array.isArray(ws.activities)) {
+          writeJson(KEYS.ACTIVITIES, ws.activities);
+        }
+        if (ws.feedback && Array.isArray(ws.feedback)) {
+          writeJson(KEYS.FEEDBACK, ws.feedback);
+        }
+        if (ws.metrics) {
+          writeJson(KEYS.METRICS, ws.metrics);
+        }
+        if (ws.drafts && Array.isArray(ws.drafts)) {
+          writeJson(KEYS.DRAFTS, ws.drafts);
+        }
+        if (ws.recoveryLogs && Array.isArray(ws.recoveryLogs)) {
+          writeJson(KEYS.RECOVERY_LOGS, ws.recoveryLogs);
+        }
+        return ws;
+      }
+    } catch {
+      // Offline fallback
+    }
+    return null;
+  },
+
+  async saveToServer(workspace: UserWorkspaceData): Promise<boolean> {
+    const token = getAuthToken();
+    if (!token) return false;
+    try {
+      const res = await fetch("/api/workspace", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ workspace }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  },
+};
+

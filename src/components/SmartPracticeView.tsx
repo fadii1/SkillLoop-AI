@@ -147,7 +147,6 @@ export const SmartPracticeView: React.FC<SmartPracticeViewProps> = ({
 
   const submitEvaluation = async (answerToGrade: string) => {
     if (!answerToGrade.trim()) return;
-    setLoadingFeedback(true);
     setFollowUpChoice(null);
 
     const elapsedMs = Math.max(500, Date.now() - questionStartRef.current);
@@ -156,16 +155,58 @@ export const SmartPracticeView: React.FC<SmartPracticeViewProps> = ({
       currentQuestion.correctAnswer.trim().toLowerCase();
     const masteryDelta = isCorrect ? 6 : 0;
 
-    let resultPayload: Omit<
-      ConceptualFeedback,
-      "id" | "timestamp" | "masteryDelta"
-    > | null = null;
+    // 1. Instant grading & feedback with 0ms latency
+    const initialPayload = generateRuleBasedFeedback({
+      question: currentQuestion.question,
+      codeSnippet: currentQuestion.codeSnippet,
+      userAnswer: answerToGrade,
+      correctAnswer: currentQuestion.correctAnswer,
+      topic: currentQuestion.topicName,
+      language,
+    });
 
+    const fullFeedback: ConceptualFeedback = {
+      id: `fb-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      masteryDelta,
+      ...initialPayload,
+    };
+
+    // Immediately display the result to the user without any lag
+    setActiveFeedback(fullFeedback);
+    onRecordFeedback(fullFeedback);
+    if (isCorrect) {
+      onUpdateMastery(currentQuestion.topicId, masteryDelta);
+    }
+    onRecordAttempt({
+      id: `att-${Date.now()}`,
+      user_id: userId,
+      question_id: currentQuestion.id,
+      topic_id: currentQuestion.topicId,
+      topic_name: currentQuestion.topicName,
+      selected_answer: answerToGrade,
+      is_correct: isCorrect,
+      response_time_ms: elapsedMs,
+      created_at: new Date().toISOString(),
+    });
+
+    onAutoSaveQuiz(null);
+    setLastSavedTime(null);
+    setLoadingFeedback(false);
+
+    // 2. Non-blocking background enhancement (optional AI enrichment)
     if (!offlineFallbackOnly) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 2500);
+
       try {
         const token = AuthRepo.getToken();
         const res = await fetch("/api/ai/feedback", {
           method: "POST",
+          signal: controller.signal,
           headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -179,71 +220,33 @@ export const SmartPracticeView: React.FC<SmartPracticeViewProps> = ({
             language,
           }),
         });
+        clearTimeout(timer);
         if (res.ok) {
           const data = await res.json();
-          if (data.feedback) {
-            resultPayload = {
-              topicName: currentQuestion.topicName,
-              question: localizedQuestion,
-              userAnswer: answerToGrade,
-              correctAnswer: currentQuestion.correctAnswer,
-              isCorrect,
-              source: "gemini",
-              whyOutcome: data.feedback.whyOutcome,
-              coreConcept: data.feedback.coreConcept,
-              stepByStep: data.feedback.stepByStep,
-              followUpQuestion: data.feedback.followUpQuestion,
-              followUpOptions: data.feedback.followUpOptions || [],
-              followUpAnswer: data.feedback.followUpAnswer || "",
-            };
+          if (data?.feedback) {
+            setActiveFeedback((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    source: "gemini",
+                    whyOutcome: data.feedback.whyOutcome || prev.whyOutcome,
+                    coreConcept: data.feedback.coreConcept || prev.coreConcept,
+                    stepByStep: data.feedback.stepByStep || prev.stepByStep,
+                    followUpQuestion:
+                      data.feedback.followUpQuestion || prev.followUpQuestion,
+                    followUpOptions:
+                      data.feedback.followUpOptions || prev.followUpOptions,
+                    followUpAnswer:
+                      data.feedback.followUpAnswer || prev.followUpAnswer,
+                  }
+                : prev
+            );
           }
         }
       } catch {
-        // Fallback below
+        // Fallback already displayed instantaneously
       }
     }
-
-    if (!resultPayload) {
-      resultPayload = generateRuleBasedFeedback({
-        question: currentQuestion.question,
-        codeSnippet: currentQuestion.codeSnippet,
-        userAnswer: answerToGrade,
-        correctAnswer: currentQuestion.correctAnswer,
-        topic: currentQuestion.topicName,
-        language,
-      });
-    }
-
-    const fullFeedback: ConceptualFeedback = {
-      id: `fb-${Date.now()}`,
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      masteryDelta,
-      ...resultPayload,
-    };
-
-    onRecordAttempt({
-      id: `att-${Date.now()}`,
-      user_id: userId,
-      question_id: currentQuestion.id,
-      topic_id: currentQuestion.topicId,
-      topic_name: currentQuestion.topicName,
-      selected_answer: answerToGrade,
-      is_correct: isCorrect,
-      response_time_ms: elapsedMs,
-      created_at: new Date().toISOString(),
-    });
-
-    setActiveFeedback(fullFeedback);
-    onRecordFeedback(fullFeedback);
-    if (isCorrect) {
-      onUpdateMastery(currentQuestion.topicId, masteryDelta);
-    }
-    onAutoSaveQuiz(null);
-    setLastSavedTime(null);
-    setLoadingFeedback(false);
   };
 
   const handleNext = () => {
