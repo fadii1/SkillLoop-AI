@@ -428,47 +428,37 @@ export async function sendVerificationEmail(params: {
   }
 
   if (providerErrors.length > 0) {
-    if (
-      process.env.ALLOW_SIMULATED_OTP === "true" ||
-      process.env.NODE_ENV !== "production"
-    ) {
+    if (process.env.NODE_ENV !== "production") {
       console.log(
-        `\n==============================================\n🔑 [SIMULATED OTP - Fallback] Verification Code for ${to}: ${code}\nReason: ${providerErrors.join(" | ")}\n==============================================\n`
+        `\n==============================================\n🔑 [LOCAL DEV OTP] Verification Code for ${to}: ${code}\nReason: ${providerErrors.join(" | ")}\n==============================================\n`
       );
       return {
         sent: true,
-        code,
-        provider: "Simulated Verification (Render Free Tier blocks SMTP)",
+        provider: "Local Dev Verification (Simulated)",
       };
     }
     return {
       sent: false,
-      error: providerErrors.join(" | "),
+      error:
+        "Unable to send email: Render Free Tier blocks outbound SMTP (ports 465 & 587). To send real verification emails on Render Free, please configure a free RESEND_API_KEY (from resend.com) or BREVO_API_KEY (from brevo.com) which use HTTPS (Port 443).",
     };
   }
 
-  // 5. No email provider secrets configured -> simulated code in development or when ALLOW_SIMULATED_OTP is true!
-  if (
-    process.env.NODE_ENV !== "production" ||
-    process.env.ALLOW_SIMULATED_OTP === "true"
-  ) {
+  // 5. No email provider secrets configured -> simulated code only in local development!
+  if (process.env.NODE_ENV !== "production") {
     console.log(
-      `\n==============================================\n🔑 [VERIFICATION OTP] Verification Code for ${to}: ${code}\n==============================================\n`
+      `\n==============================================\n🔑 [LOCAL DEV OTP] Verification Code for ${to}: ${code}\n==============================================\n`
     );
     return {
       sent: true,
-      code,
-      provider:
-        process.env.NODE_ENV !== "production"
-          ? "Local Dev Verification (Simulated)"
-          : "Render Demo Mode (Check Render Server Logs for OTP)",
+      provider: "Local Dev Verification (Simulated)",
     };
   }
 
   return {
     sent: false,
     error:
-      "Email service is not configured yet. Add SMTP_USER & SMTP_PASS (Gmail App Password) in your Render Environment Variables, or set ALLOW_SIMULATED_OTP=true.",
+      "Email service is not configured yet. Please configure a free RESEND_API_KEY (from resend.com) or BREVO_API_KEY (from brevo.com) to send genuine verification emails.",
   };
 }
 

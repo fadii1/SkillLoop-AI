@@ -290,7 +290,6 @@ async function startServer() {
         expiresInSec: 600,
         deliveryMode: "email",
         provider: delivery.provider,
-        code: delivery.code,
       });
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Signup failed.";
