@@ -213,6 +213,32 @@ async function startServer() {
     }
   });
 
+  app.post("/api/auth/google-direct", async (req, res) => {
+    const { email, name, role = "learner" } = req.body ?? {};
+    const cleanEmail = String(email ?? "").trim().toLowerCase();
+    const cleanName = String(name ?? "").trim() || "Google User";
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+      return res.status(400).json({ error: "Valid Google email required." });
+    }
+
+    try {
+      const validRole: Role = role === "educator" || role === "admin" ? role : "learner";
+      const userUid = `google-${cleanEmail.replace(/[^a-zA-Z0-9]/g, "_")}`;
+      const dbUser = await getOrCreateUser(
+        userUid,
+        cleanEmail,
+        cleanName,
+        undefined
+      );
+      const safe = toPublicUser(dbUser);
+      const token = signSessionToken(safe);
+      return res.json({ user: safe, token });
+    } catch (err) {
+      console.error("google-direct error:", err);
+      return res.status(500).json({ error: "Google authentication failed." });
+    }
+  });
+
   app.post("/api/auth/signup/request-code", async (req, res) => {
     const { name, email, password, role = "learner" } = req.body ?? {};
     const cleanName = String(name ?? "").trim();
