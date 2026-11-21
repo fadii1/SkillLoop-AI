@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: skillloop-ai
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ALLOW_SIMULATED_OTP
+        value: "true"

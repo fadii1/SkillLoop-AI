@@ -430,19 +430,27 @@ export async function sendVerificationEmail(params: {
     };
   }
 
-  // 5. No email provider secrets configured -> simulated code in development!
-  if (process.env.NODE_ENV !== "production") {
-    console.log(`\n==============================================\n🔑 [DEV MODE] Verification Code for ${to}: ${code}\n==============================================\n`);
+  // 5. No email provider secrets configured -> simulated code in development or when ALLOW_SIMULATED_OTP is true!
+  if (
+    process.env.NODE_ENV !== "production" ||
+    process.env.ALLOW_SIMULATED_OTP === "true"
+  ) {
+    console.log(
+      `\n==============================================\n🔑 [VERIFICATION OTP] Verification Code for ${to}: ${code}\n==============================================\n`
+    );
     return {
       sent: true,
-      provider: "Local Dev Verification (Simulated)",
+      provider:
+        process.env.NODE_ENV !== "production"
+          ? "Local Dev Verification (Simulated)"
+          : "Render Demo Mode (Check Render Server Logs for OTP)",
     };
   }
 
   return {
     sent: false,
     error:
-      "Email service is not configured yet. Add SMTP_USER & SMTP_PASS (Gmail App Password) or a valid RESEND_API_KEY in AI Studio Secrets to send genuine verification codes.",
+      "Email service is not configured yet. Add SMTP_USER & SMTP_PASS (Gmail App Password) in your Render Environment Variables, or set ALLOW_SIMULATED_OTP=true.",
   };
 }
 

@@ -112,6 +112,73 @@ export async function ensureDatabaseSeeded(): Promise<void> {
   if (!seedDonePromise) {
     seedDonePromise = (async () => {
       try {
+        // Auto-create database tables if running against a fresh PostgreSQL instance
+        try {
+          await db.execute(sql`
+            CREATE TABLE IF NOT EXISTS users (
+              id SERIAL PRIMARY KEY,
+              uid TEXT NOT NULL UNIQUE,
+              name TEXT NOT NULL,
+              email TEXT NOT NULL UNIQUE,
+              password_hash TEXT NOT NULL DEFAULT '',
+              role TEXT NOT NULL DEFAULT 'learner',
+              avatar TEXT NOT NULL,
+              email_verified BOOLEAN NOT NULL DEFAULT false,
+              preferred_language TEXT NOT NULL DEFAULT 'en',
+              accessibility_prefs JSONB NOT NULL,
+              streak_days INTEGER NOT NULL DEFAULT 1,
+              last_active_at TIMESTAMP NOT NULL DEFAULT NOW(),
+              created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+
+            CREATE TABLE IF NOT EXISTS pending_signups (
+              id SERIAL PRIMARY KEY,
+              email TEXT NOT NULL UNIQUE,
+              name TEXT NOT NULL,
+              password_hash TEXT NOT NULL,
+              role TEXT NOT NULL DEFAULT 'learner',
+              code_hash TEXT NOT NULL,
+              attempts INTEGER NOT NULL DEFAULT 0,
+              expires_at TIMESTAMP NOT NULL,
+              last_sent_at TIMESTAMP NOT NULL DEFAULT NOW(),
+              created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+
+            CREATE TABLE IF NOT EXISTS quiz_attempts (
+              id SERIAL PRIMARY KEY,
+              attempt_uuid TEXT NOT NULL,
+              user_uid TEXT NOT NULL,
+              question_id TEXT NOT NULL,
+              topic_id TEXT NOT NULL,
+              topic_name TEXT NOT NULL,
+              selected_answer TEXT NOT NULL,
+              is_correct BOOLEAN NOT NULL,
+              response_time_ms INTEGER NOT NULL DEFAULT 0,
+              created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+
+            CREATE TABLE IF NOT EXISTS recovery_logs (
+              id SERIAL PRIMARY KEY,
+              log_code TEXT NOT NULL UNIQUE,
+              timestamp_label TEXT NOT NULL,
+              event TEXT NOT NULL,
+              component TEXT NOT NULL,
+              severity TEXT NOT NULL,
+              detail TEXT NOT NULL,
+              created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+
+            CREATE TABLE IF NOT EXISTS user_workspaces (
+              id SERIAL PRIMARY KEY,
+              user_uid TEXT NOT NULL UNIQUE,
+              workspace_data JSONB NOT NULL,
+              updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+            );
+          `);
+        } catch (tableErr) {
+          console.warn("Table auto-migration notice (tables may already exist):", tableErr);
+        }
+
         const now = new Date();
         const demoHash = hashPassword("demo123");
 

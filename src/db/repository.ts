@@ -134,6 +134,10 @@ async function parseApiJson(
 }
 
 function getHttpFallbackError(res: Response, defaultMsg: string): string {
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("text/html")) {
+    return `${defaultMsg} Backend server not running or API route returned HTML. Please ensure Render is deployed as a Web Service (Node.js) and not a Static Site.`;
+  }
   if (res.status === 502 || res.status === 504) {
     return `Server request timed out (HTTP ${res.status}). Please retry.`;
   }
