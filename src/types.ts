@@ -39,6 +39,7 @@ export interface SignupCodeRequestResult {
   expiresInSec?: number;
   deliveryMode?: "email";
   provider?: string;
+  code?: string;
   error?: string;
 }
 

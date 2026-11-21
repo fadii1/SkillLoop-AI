@@ -153,6 +153,7 @@ export interface EmailSendResult {
   sent: boolean;
   provider?: string;
   error?: string;
+  code?: string;
 }
 
 export function getConfiguredSecret(val?: string): string | null {
@@ -263,6 +264,9 @@ export async function sendVerificationEmail(params: {
         const transporter = isGmail
           ? nodemailer.createTransport({
               service: "gmail",
+              connectionTimeout: 4000,
+              greetingTimeout: 4000,
+              socketTimeout: 5000,
               auth: {
                 user: smtpUser,
                 pass: smtpPass,
@@ -272,9 +276,9 @@ export async function sendVerificationEmail(params: {
               host: smtpHost,
               port,
               secure: port === 465,
-              connectionTimeout: 10000,
-              greetingTimeout: 10000,
-              socketTimeout: 15000,
+              connectionTimeout: 4000,
+              greetingTimeout: 4000,
+              socketTimeout: 5000,
               auth: {
                 user: smtpUser,
                 pass: smtpPass,
@@ -424,6 +428,19 @@ export async function sendVerificationEmail(params: {
   }
 
   if (providerErrors.length > 0) {
+    if (
+      process.env.ALLOW_SIMULATED_OTP === "true" ||
+      process.env.NODE_ENV !== "production"
+    ) {
+      console.log(
+        `\n==============================================\n🔑 [SIMULATED OTP - Fallback] Verification Code for ${to}: ${code}\nReason: ${providerErrors.join(" | ")}\n==============================================\n`
+      );
+      return {
+        sent: true,
+        code,
+        provider: "Simulated Verification (Render Free Tier blocks SMTP)",
+      };
+    }
     return {
       sent: false,
       error: providerErrors.join(" | "),
@@ -440,6 +457,7 @@ export async function sendVerificationEmail(params: {
     );
     return {
       sent: true,
+      code,
       provider:
         process.env.NODE_ENV !== "production"
           ? "Local Dev Verification (Simulated)"

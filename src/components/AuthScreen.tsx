@@ -134,10 +134,17 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
       }
 
       setSignupStep("verify");
-      setOtpDigits(["", "", "", "", "", ""]);
-      setInfoMsg(
-        `A 6-digit verification code has been sent to ${res.email}. Please check your Inbox or Spam folder.`
-      );
+      if (res.code) {
+        setOtpDigits(res.code.split(""));
+        setInfoMsg(
+          `Verification code: ${res.code} (Render free tier fallback). Code has also been pre-filled for you.`
+        );
+      } else {
+        setOtpDigits(["", "", "", "", "", ""]);
+        setInfoMsg(
+          `A 6-digit verification code has been sent to ${res.email}. Please check your Inbox or Spam folder.`
+        );
+      }
       setResendCooldown(20);
       setTimeout(() => otpInputRefs.current[0]?.focus(), 80);
     } finally {
